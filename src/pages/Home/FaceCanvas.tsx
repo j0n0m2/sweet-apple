@@ -1,0 +1,166 @@
+import { useEffect, useRef } from "react";
+import * as faceapi from "face-api.js";
+import type { Part } from "./model/type";
+import { useFaceApi } from "./hooks/useFaceApi";
+import { initialParts } from "./model/parts";
+import { useDragHandlers } from "./hooks/useDragHandlers";
+import { IMAGE_ORDER_NUM, THRESHOLD } from "./model/constants";
+
+const FaceCanvas = () => {
+  const videoRef = useRef<HTMLVideoElement>(null!);
+  const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const partsRef = useRef<Part[]>(initialParts);
+  const dragState = useRef<{
+    dragPart: null | Part;
+    offsetX: number;
+    offsetY: number;
+  }>({ dragPart: null, offsetX: 0, offsetY: 0 });
+
+  const imageNumberRef = useRef(1);
+  const lastImageNumberRef = useRef(-1);
+
+  // face api model load 및 캠 활성화
+  useFaceApi(videoRef);
+  useDragHandlers(canvasRef, dragState, partsRef);
+
+  useEffect(() => {
+    const video = videoRef.current!;
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d")!;
+    const displaySize = { width: video.width, height: video.height };
+
+    // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
+    // active 클래스가 부여된 img 요소만 보이게 됨
+    for (let i = IMAGE_ORDER_NUM.first; i <= IMAGE_ORDER_NUM.last; i++) {
+      const img = document.createElement("img");
+      img.src = `/img/${i}.png`;
+      img.id = `img${i}`;
+      img.className = "absolute top-0 left-0 w-full h-full opacity-0 z-[1]";
+      imageContainerRef.current!.appendChild(img);
+    }
+
+    video.addEventListener("play", () => {
+      const interval = setInterval(async () => {
+        const detections = await faceapi
+          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceExpressions();
+
+        const resizedDetections = faceapi.resizeResults(
+          detections,
+          displaySize
+        );
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        resizedDetections.forEach((detection) => {
+          const { happy, sad, angry } = detection.expressions;
+
+          if (happy > THRESHOLD.happy) imageNumberRef.current++;
+          if (sad > THRESHOLD.angry || angry > THRESHOLD.angry)
+            imageNumberRef.current--;
+
+          imageNumberRef.current = Math.max(
+            IMAGE_ORDER_NUM.first,
+            Math.min(IMAGE_ORDER_NUM.last, imageNumberRef.current)
+          );
+
+          if (imageNumberRef.current !== lastImageNumberRef.current) {
+            const newImage = document.getElementById(
+              `img${imageNumberRef.current}`
+            );
+            const lastImage =
+              lastImageNumberRef.current !== -1
+                ? document.getElementById(`img${lastImageNumberRef.current}`)
+                : null;
+
+            if (lastImage) lastImage.classList.remove("opacity-100", "z-[2]");
+            newImage?.classList.add("opacity-100", "z-[2]");
+            lastImageNumberRef.current = imageNumberRef.current;
+          }
+
+          const landmarks = detection.landmarks;
+          const scaleX = video.videoWidth / video.width;
+          const scaleY = video.videoHeight / video.height;
+
+          partsRef.current.forEach((part) => {
+            let points: faceapi.Point[] = [];
+            if (part.name === "leftEye") points = landmarks.getLeftEye();
+            else if (part.name === "rightEye") points = landmarks.getRightEye();
+            else if (part.name === "mouth") points = landmarks.getMouth();
+
+            const minX = Math.min(...points.map((pt) => pt.x)) * scaleX - 10;
+            const maxX = Math.max(...points.map((pt) => pt.x)) * scaleX + 10;
+            const minY = Math.min(...points.map((pt) => pt.y)) * scaleY;
+            const maxY = Math.max(...points.map((pt) => pt.y)) * scaleY;
+
+            const partWidth = maxX - minX;
+            const partHeight = maxY - minY;
+
+            const tmp = document.createElement("canvas");
+            const tmpCtx = tmp.getContext("2d")!;
+
+            tmp.width = part.width;
+            tmp.height = part.height;
+
+            tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
+            tmpCtx.save();
+            tmpCtx.beginPath();
+
+            points.forEach((pt, i) => {
+              const x = (pt.x * scaleX - minX) * (part.width / partWidth);
+              const y = (pt.y * scaleY - minY) * (part.height / partHeight);
+              if (i === 0) tmpCtx.moveTo(x, y);
+              else tmpCtx.lineTo(x, y);
+            });
+
+            tmpCtx.closePath();
+            tmpCtx.clip();
+
+            tmpCtx.drawImage(
+              video,
+              minX,
+              minY,
+              partWidth,
+              partHeight,
+              0,
+              0,
+              tmp.width,
+              tmp.height
+            );
+
+            tmpCtx.restore();
+            ctx.drawImage(tmp, part.posX, part.posY);
+          });
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    });
+  }, []);
+  return (
+    <>
+      <video
+        ref={videoRef}
+        className="absolute opacity-0 z-[-1]"
+        width={1}
+        height={1}
+        autoPlay
+        muted
+      />
+      <div
+        ref={imageContainerRef}
+        className="absolute w-[600px] h-[600px] overflow-hidden left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+      ></div>
+
+      <canvas
+        ref={canvasRef}
+        width={600}
+        height={600}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+      ></canvas>
+    </>
+  );
+};
+
+export default FaceCanvas;
