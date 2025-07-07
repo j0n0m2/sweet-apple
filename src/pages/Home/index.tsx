@@ -1,15 +1,13 @@
-import Background from '@/pages/Home/ui/Background';
-import Header from '@/pages/Home/ui/Header';
-import FaceCanvas from '@/pages/Home/FaceCanvas';
-import NavigationBar from '@/shared/components/NavigationBar';
+import Background from '@/pages/home/ui/Background';
+import Header from '@/pages/home/ui/Header';
+import FaceCanvas from '@/pages/home/FaceCanvas';
 
 const Home = () => {
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-screen w-full">
       <Background />
       <Header />
       <FaceCanvas />
-      <NavigationBar />
     </div>
   );
 };
