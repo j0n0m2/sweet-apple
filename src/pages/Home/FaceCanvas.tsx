@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import * as faceapi from "face-api.js";
-import type { Part } from "./model/type";
-import { useFaceApi } from "./hooks/useFaceApi";
-import { initialParts } from "./model/parts";
-import { useDragHandlers } from "./hooks/useDragHandlers";
-import { IMAGE_ORDER_NUM, THRESHOLD } from "./model/constants";
+import { useEffect, useRef } from 'react';
+import * as faceapi from 'face-api.js';
+import type { Part } from './model/type';
+import { useFaceApi } from './hooks/useFaceApi';
+import { initialParts } from './model/parts';
+import { useDragHandlers } from './hooks/useDragHandlers';
+import { IMAGE_ORDER_NUM, THRESHOLD } from './model/constants';
 
 const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
@@ -27,20 +27,20 @@ const FaceCanvas = () => {
   useEffect(() => {
     const video = videoRef.current!;
     const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext('2d')!;
     const displaySize = { width: video.width, height: video.height };
 
     // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
     // active 클래스가 부여된 img 요소만 보이게 됨
     for (let i = IMAGE_ORDER_NUM.first; i <= IMAGE_ORDER_NUM.last; i++) {
-      const img = document.createElement("img");
+      const img = document.createElement('img');
       img.src = `/img/${i}.png`;
       img.id = `img${i}`;
-      img.className = "absolute top-0 left-0 w-full h-full opacity-0 z-[1]";
+      img.className = 'absolute top-0 left-0 w-full h-full opacity-0 z-[1]';
       imageContainerRef.current!.appendChild(img);
     }
 
-    video.addEventListener("play", () => {
+    video.addEventListener('play', () => {
       const interval = setInterval(async () => {
         const detections = await faceapi
           .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
@@ -81,8 +81,8 @@ const FaceCanvas = () => {
                 ? document.getElementById(`img${lastImageNumberRef.current}`)
                 : null;
 
-            if (lastImage) lastImage.classList.remove("opacity-100", "z-[2]");
-            newImage?.classList.add("opacity-100", "z-[2]");
+            if (lastImage) lastImage.classList.remove('opacity-100', 'z-[2]');
+            newImage?.classList.add('opacity-100', 'z-[2]');
             lastImageNumberRef.current = imageNumberRef.current;
           }
 
@@ -92,9 +92,9 @@ const FaceCanvas = () => {
 
           partsRef.current.forEach((part) => {
             let points: faceapi.Point[] = [];
-            if (part.name === "leftEye") points = landmarks.getLeftEye();
-            else if (part.name === "rightEye") points = landmarks.getRightEye();
-            else if (part.name === "mouth") points = landmarks.getMouth();
+            if (part.name === 'leftEye') points = landmarks.getLeftEye();
+            else if (part.name === 'rightEye') points = landmarks.getRightEye();
+            else if (part.name === 'mouth') points = landmarks.getMouth();
 
             const minX = Math.min(...points.map((pt) => pt.x)) * scaleX - 10;
             const maxX = Math.max(...points.map((pt) => pt.x)) * scaleX + 10;
@@ -104,8 +104,8 @@ const FaceCanvas = () => {
             const partWidth = maxX - minX;
             const partHeight = maxY - minY;
 
-            const tmp = document.createElement("canvas");
-            const tmpCtx = tmp.getContext("2d")!;
+            const tmp = document.createElement('canvas');
+            const tmpCtx = tmp.getContext('2d')!;
 
             tmp.width = part.width;
             tmp.height = part.height;
@@ -149,7 +149,7 @@ const FaceCanvas = () => {
     <>
       <video
         ref={videoRef}
-        className="absolute opacity-0 z-[-1]"
+        className="absolute z-[-1] opacity-0"
         width={1}
         height={1}
         autoPlay
@@ -157,14 +157,14 @@ const FaceCanvas = () => {
       />
       <div
         ref={imageContainerRef}
-        className="absolute w-[600px] h-[600px] overflow-hidden left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 overflow-hidden"
       ></div>
 
       <canvas
         ref={canvasRef}
         width={600}
         height={600}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+        className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
       ></canvas>
     </>
   );

@@ -1,19 +1,23 @@
-import Background from "./ui/Background";
-import Header from "./ui/Header";
-import FaceCanvas from "./FaceCanvas";
+import Background from './ui/Background';
+import Header from './ui/Header';
+import FaceCanvas from './FaceCanvas';
 
 const Home = () => {
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden">
       <Background />
       <Header />
       <FaceCanvas />
 
-      <div>
-        <a href="/about" className="text-white">
-          About
-        </a>
-      </div>
+      <nav>
+        <ul>
+          <li>
+            <a href="/about" className="text-white">
+              About
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 };
