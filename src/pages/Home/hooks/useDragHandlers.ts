@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Part } from '@/pages/Home/model/type';
+import type { Part } from '@/pages/home/model/type';
 
 export const useDragHandlers = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
