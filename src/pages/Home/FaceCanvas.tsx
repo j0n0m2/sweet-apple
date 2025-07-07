@@ -40,6 +40,12 @@ const FaceCanvas = () => {
       imageContainerRef.current!.appendChild(img);
     }
 
+    // 기본 이미지 설정
+    const firstImg = document.getElementById(`img${IMAGE_ORDER_NUM.first}`);
+    firstImg?.classList.add('opacity-100', 'z-[2]');
+    lastImageNumberRef.current = IMAGE_ORDER_NUM.first;
+    imageNumberRef.current = IMAGE_ORDER_NUM.first;
+
     video.addEventListener('play', () => {
       const interval = setInterval(async () => {
         // 비디오가 멈춰 있거나 종료된 상태라면(= 다른 메뉴로 이동한 상태) 얼굴 인식 함수 종료
