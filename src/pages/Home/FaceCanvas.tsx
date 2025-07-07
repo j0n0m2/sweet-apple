@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import * as faceapi from 'face-api.js';
-import type { Part } from '@/pages/Home/model/type';
-import { useFaceApi } from '@/pages/Home/hooks/useFaceApi';
-import { initialParts } from '@/pages/Home/model/parts';
-import { useDragHandlers } from '@/pages/Home/hooks/useDragHandlers';
-import { IMAGE_ORDER_NUM, THRESHOLD } from '@/pages/Home/model/constants';
+import type { Part } from '@/pages/home/model/type';
+import { useFaceApi } from '@/pages/home/hooks/useFaceApi';
+import { initialParts } from '@/pages/home/model/parts';
+import { useDragHandlers } from '@/pages/home/hooks/useDragHandlers';
+import { IMAGE_ORDER_NUM, THRESHOLD } from '@/pages/home/model/constants';
 
 const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
@@ -42,6 +42,9 @@ const FaceCanvas = () => {
 
     video.addEventListener('play', () => {
       const interval = setInterval(async () => {
+        // 비디오가 멈춰 있거나 종료된 상태라면(= 다른 메뉴로 이동한 상태) 얼굴 인식 함수 종료
+        if (video.paused || video.ended) return;
+
         const detections = await faceapi
           .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
           .withFaceLandmarks()
