@@ -1,6 +1,7 @@
-import Background from './ui/Background';
-import Header from './ui/Header';
-import FaceCanvas from './FaceCanvas';
+import Background from '@/pages/Home/ui/Background';
+import Header from '@/pages/Home/ui/Header';
+import FaceCanvas from '@/pages/Home/FaceCanvas';
+import NavigationBar from '@/shared/components/NavigationBar';
 
 const Home = () => {
   return (
@@ -8,16 +9,7 @@ const Home = () => {
       <Background />
       <Header />
       <FaceCanvas />
-
-      <nav>
-        <ul>
-          <li>
-            <a href="/about" className="text-white">
-              About
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <NavigationBar />
     </div>
   );
 };

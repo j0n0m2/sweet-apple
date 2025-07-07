@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import type { Part } from "../model/type";
+import { useEffect } from 'react';
+import type { Part } from '@/pages/Home/model/type';
 
 export const useDragHandlers = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
@@ -65,10 +65,10 @@ export const useDragHandlers = (
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (dragState.current.dragPart) {
-        if (e.key === "+" || e.key === "=") {
+        if (e.key === '+' || e.key === '=') {
           dragState.current.dragPart.width += 10;
           dragState.current.dragPart.height += 5;
-        } else if (e.key === "-") {
+        } else if (e.key === '-') {
           dragState.current.dragPart.width = Math.max(
             10,
             dragState.current.dragPart.width - 5
@@ -81,18 +81,18 @@ export const useDragHandlers = (
       }
     };
 
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("mouseup", handleMouseUp);
-    canvas.addEventListener("wheel", handleWheel);
-    window.addEventListener("keydown", handleKeyDown);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('wheel', handleWheel);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      canvas.removeEventListener("mousedown", handleMouseDown);
-      canvas.removeEventListener("mousemove", handleMouseMove);
-      canvas.removeEventListener("mouseup", handleMouseUp);
-      canvas.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("keydown", handleKeyDown);
+      canvas.removeEventListener('mousedown', handleMouseDown);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseup', handleMouseUp);
+      canvas.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [canvasRef, dragState, partsRef]);
 };
