@@ -54,10 +54,17 @@ const FaceCanvas = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         resizedDetections.forEach((detection) => {
-          const { happy, sad, angry } = detection.expressions;
+          const { happy, angry, fearful, disgusted } = detection.expressions;
 
+          // 특정 감정이 설정한 한계점을 넘으면 보여질 이미지 번호를 조정
+          // 미소를 지어야 감지되는 행복함은 상태가 좋은 사과의 이미지를 보여줌
           if (happy > THRESHOLD.happy) imageNumberRef.current++;
-          if (sad > THRESHOLD.angry || angry > THRESHOLD.angry)
+          if (
+            // 역겨움, 두려움, 화남 등 표정이 일그려야 감지되는 감정들은 썩은 사과의 이미지를 보여줌
+            disgusted > THRESHOLD.disgusted ||
+            fearful > THRESHOLD.fearful ||
+            angry > THRESHOLD.angry
+          )
             imageNumberRef.current--;
 
           imageNumberRef.current = Math.max(
