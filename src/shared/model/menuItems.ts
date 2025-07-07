@@ -1,5 +1,5 @@
 export const menuItems = {
-  home: '/',
-  sell: '/sell',
-  about: '/about',
+  HOME: '/',
+  MARKET: '/market',
+  ABOUT: '/about',
 };
