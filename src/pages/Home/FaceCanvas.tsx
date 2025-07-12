@@ -166,15 +166,16 @@ const FaceCanvas = () => {
       />
       <div
         ref={imageContainerRef}
-        className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+        className="absolute top-[23%] left-1/2 h-[700px] w-[700px] -translate-x-1/2 overflow-hidden"
       ></div>
 
       <canvas
         ref={canvasRef}
         width={600}
         height={600}
-        className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-[30%] left-1/2 z-10 -translate-x-1/2"
       ></canvas>
+      <div className="absolute top-[23%] left-1/2 z-[-1] h-180 w-180 -translate-x-1/2 rounded-full bg-white blur-[16px]" />
     </>
   );
 };
