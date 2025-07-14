@@ -7,8 +7,8 @@ import { useDragHandlers } from '@/sections/main/hooks/useDragHandlers';
 import { IMAGE_RANGE } from '@/sections/main/constants/imageRange';
 import { THRESHOLD } from '@/sections/main/constants/emotionsThreshold';
 import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
-import ScanResultModal from './components/ScanResultModal';
-import Header from './ui/Header';
+import ScanResultModal from '@/sections/main/components/ScanResultModal';
+import Header from '@/sections/main/ui/Header';
 
 const FaceCanvas = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
