@@ -1,6 +1,6 @@
-import FaceCanvas from './FaceCanvas';
-import Background from './ui/Background';
-import Header from './ui/Header';
+import FaceCanvas from '@/sections/main/FaceCanvas';
+import Background from '@/sections/main/ui/Background';
+import Header from '@/sections/main/ui/Header';
 
 const MainContent = () => {
   return (

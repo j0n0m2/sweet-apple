@@ -4,7 +4,9 @@ import type { Part } from '@/sections/main/model/type';
 import { useFaceApi } from '@/sections/main/hooks/useFaceApi';
 import { initialParts } from '@/sections/main/model/parts';
 import { useDragHandlers } from '@/sections/main/hooks/useDragHandlers';
-import { IMAGE_ORDER_NUM, THRESHOLD } from '@/sections/main/model/constants';
+import { IMAGE_RANGE } from '@/sections/main/constants/imageRange';
+import { THRESHOLD } from '@/sections/main/constants/emotionsThreshold';
+import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
 
 const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
@@ -32,7 +34,7 @@ const FaceCanvas = () => {
 
     // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
     // active 클래스가 부여된 img 요소만 보이게 됨
-    for (let i = IMAGE_ORDER_NUM.first; i <= IMAGE_ORDER_NUM.last; i++) {
+    for (let i = IMAGE_RANGE.first; i <= IMAGE_RANGE.last; i++) {
       const img = document.createElement('img');
       img.src = `/img/${i}.png`;
       img.id = `img${i}`;
@@ -41,10 +43,10 @@ const FaceCanvas = () => {
     }
 
     // 기본 이미지 설정
-    const firstImg = document.getElementById(`img${IMAGE_ORDER_NUM.first}`);
+    const firstImg = document.getElementById(`img${IMAGE_RANGE.first}`);
     firstImg?.classList.add('opacity-100', 'z-[2]');
-    lastImageNumberRef.current = IMAGE_ORDER_NUM.first;
-    imageNumberRef.current = IMAGE_ORDER_NUM.first;
+    lastImageNumberRef.current = IMAGE_RANGE.first;
+    imageNumberRef.current = IMAGE_RANGE.first;
 
     video.addEventListener('play', () => {
       const interval = setInterval(async () => {
@@ -77,8 +79,8 @@ const FaceCanvas = () => {
             imageNumberRef.current--;
 
           imageNumberRef.current = Math.max(
-            IMAGE_ORDER_NUM.first,
-            Math.min(IMAGE_ORDER_NUM.last, imageNumberRef.current)
+            IMAGE_RANGE.first,
+            Math.min(IMAGE_RANGE.last, imageNumberRef.current)
           );
 
           if (imageNumberRef.current !== lastImageNumberRef.current) {
@@ -175,7 +177,7 @@ const FaceCanvas = () => {
         height={650}
         className="absolute top-[27%] left-1/2 z-10 -translate-x-1/2"
       ></canvas>
-      <div className="absolute top-[22%] left-1/2 z-[-1] h-180 w-180 -translate-x-1/2 rounded-full bg-white blur-[16px]" />
+      <BackgroundCircle />
     </>
   );
 };

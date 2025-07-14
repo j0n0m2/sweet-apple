@@ -1,8 +1,8 @@
 import Market from '@/sections/market';
 import { useState } from 'react';
+import { MENU_ITEMS } from '@/constants/menuItems';
 import { MENU_HOW_TEXT, MENU_ABOUT_TEXT } from '@/constants/text';
 
-const menuItems = ['How', 'Market', 'About'];
 const items = [MENU_HOW_TEXT, <Market />, MENU_ABOUT_TEXT];
 
 const AsideBar = () => {
@@ -16,7 +16,7 @@ const AsideBar = () => {
     <div className="z-20 h-full w-full flex-1 border-l border-[#003661] bg-[linear-gradient(270deg,_#ffffff60_0%,_#ffffff_100%)] text-[#003661]">
       <div>
         <ul className="flex">
-          {menuItems.map((name, index) => {
+          {MENU_ITEMS.map((name, index) => {
             const liClasses = [
               'flex-1',
               'cursor-pointer',
