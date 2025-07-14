@@ -1,12 +1,10 @@
+import Market from '@/sections/market';
 import { useState } from 'react';
-import Market from '../market';
+import { MENU_HOW_TEXT, MENU_ABOUT_TEXT } from '@/constants/text';
 
 const menuItems = ['How', 'Market', 'About'];
-const textItems = [
-  `당신의 미소는 얼마나 달콤할까요? \n 눈과 입을 이리저리 움직여보세요.`,
-  <Market />,
-  `ㄱ겍? \n 눈과 입을 이리저리 움직여보세요.`,
-];
+const items = [MENU_HOW_TEXT, <Market />, MENU_ABOUT_TEXT];
+
 const AsideBar = () => {
   const [menu, setMenu] = useState(0);
 
@@ -51,9 +49,7 @@ const AsideBar = () => {
           })}
         </ul>
       </div>
-      <div className="p-8 text-[24px] whitespace-pre-line">
-        {textItems[menu]}
-      </div>
+      <div className="p-8 text-[24px] whitespace-pre-line">{items[menu]}</div>
     </div>
   );
 };

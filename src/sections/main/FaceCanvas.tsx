@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import * as faceapi from 'face-api.js';
-import type { Part } from '@/pages/home/model/type';
-import { useFaceApi } from '@/pages/home/hooks/useFaceApi';
-import { initialParts } from '@/pages/home/model/parts';
-import { useDragHandlers } from '@/pages/home/hooks/useDragHandlers';
-import { IMAGE_ORDER_NUM, THRESHOLD } from '@/pages/home/model/constants';
+import type { Part } from '@/sections/main/model/type';
+import { useFaceApi } from '@/sections/main/hooks/useFaceApi';
+import { initialParts } from '@/sections/main/model/parts';
+import { useDragHandlers } from '@/sections/main/hooks/useDragHandlers';
+import { IMAGE_ORDER_NUM, THRESHOLD } from '@/sections/main/model/constants';
 
 const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
