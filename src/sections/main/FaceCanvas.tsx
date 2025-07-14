@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import type { Part } from '@/sections/main/model/type';
 import { useFaceApi } from '@/sections/main/hooks/useFaceApi';
@@ -7,8 +7,47 @@ import { useDragHandlers } from '@/sections/main/hooks/useDragHandlers';
 import { IMAGE_RANGE } from '@/sections/main/constants/imageRange';
 import { THRESHOLD } from '@/sections/main/constants/emotionsThreshold';
 import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
+import ScanResultModal from './components/ScanResultModel';
+import Header from './ui/Header';
 
 const FaceCanvas = () => {
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [imageKey, setImageKey] = useState<string>('');
+  const [openScanResultModal, isOpenScanResultModal] = useState<boolean>(false);
+
+  const handleCapture = () => {
+    const canvas = canvasRef.current;
+
+    // 현재 사과 이미지 저장
+    const activeImage =
+      imageContainerRef.current?.querySelector('img.opacity-100');
+
+    // 캡쳐한 이미지를 저장하기 위한 임시 캔버스 생성
+    const tmp = document.createElement('canvas');
+    tmp.width = canvas.width;
+    tmp.height = canvas.height;
+    const tmpCtx = tmp.getContext('2d')!;
+
+    // 저장해둔 사과 이미지 그리기
+    tmpCtx.drawImage(
+      activeImage as HTMLImageElement,
+      0,
+      0,
+      tmp.width,
+      tmp.height
+    );
+
+    // 표정 캔버스 합치기
+    tmpCtx.drawImage(canvas, 0, 0);
+
+    // 저장
+    const imageDataUrl = tmp.toDataURL('image/webp');
+    setCapturedImage(imageDataUrl);
+
+    // 이미지 키 설정
+    setImageKey(Date.now().toString());
+  };
+
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
@@ -160,7 +199,7 @@ const FaceCanvas = () => {
     <>
       <video
         ref={videoRef}
-        className="absolute z-[-1] opacity-0"
+        className="opacity-0"
         width={1}
         height={1}
         autoPlay
@@ -168,16 +207,35 @@ const FaceCanvas = () => {
       />
       <div
         ref={imageContainerRef}
-        className="absolute top-[20%] left-1/2 h-[750px] w-[750px] -translate-x-1/2 overflow-hidden"
+        className="absolute top-[15%] left-1/2 h-[750px] w-[750px] -translate-x-1/2 overflow-hidden"
       ></div>
 
       <canvas
         ref={canvasRef}
-        width={650}
-        height={650}
-        className="absolute top-[27%] left-1/2 z-10 -translate-x-1/2"
+        width={750}
+        height={750}
+        className="absolute top-[15%] left-1/2 z-10 -translate-x-1/2"
       ></canvas>
+
+      {/* 배경 원 */}
       <BackgroundCircle />
+
+      <div className="flex h-full flex-col justify-between p-10">
+        <Header />
+        <button
+          onClick={handleCapture}
+          className="h-32 w-32 cursor-pointer rounded-2xl border-black bg-white px-4 py-2 text-[24px] font-bold hover:bg-blue-300 hover:text-white"
+        >
+          Scan <br /> Apple
+        </button>
+      </div>
+
+      <ScanResultModal
+        imageKey={imageKey}
+        src={capturedImage}
+        handleModal={isOpenScanResultModal}
+        modalOpen={openScanResultModal}
+      />
     </>
   );
 };
