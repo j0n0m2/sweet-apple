@@ -108,7 +108,12 @@ const FaceCanvas = () => {
 
           // 특정 감정이 설정한 한계점을 넘으면 보여질 이미지 번호를 조정
           // 미소를 지어야 감지되는 행복함은 상태가 좋은 사과의 이미지를 보여줌
-          if (happy > THRESHOLD.happy) imageNumberRef.current++;
+
+          // 행복함이 다른 감정보다 낮은 수치라면 이미지 번호를 증가시키지 않도록 조정
+          if (happy > disgusted || happy > fearful || happy > angry) {
+            if (happy > THRESHOLD.happy) imageNumberRef.current++;
+          }
+
           if (
             // 역겨움, 두려움, 화남 등 표정이 일그려야 감지되는 감정들은 썩은 사과의 이미지를 보여줌
             disgusted > THRESHOLD.disgusted ||
