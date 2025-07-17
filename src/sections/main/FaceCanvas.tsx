@@ -12,7 +12,8 @@ import Header from '@/sections/main/ui/Header';
 
 const FaceCanvas = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [imageKey, setImageKey] = useState<string>('');
+  const [imageKey, setImageKey] = useState<string | null>(null);
+  const [sugarContent, setSugarContent] = useState<number | null>(null);
   const [openScanResultModal, setOpenScanResultModal] =
     useState<boolean>(false);
 
@@ -27,7 +28,7 @@ const FaceCanvas = () => {
   }>({ dragPart: null, offsetX: 0, offsetY: 0 });
 
   const imageNumberRef = useRef(IMAGE_RANGE.first);
-  const lastImageNumberRef = useRef(-1);
+  const lastImageNumberRef = useRef(IMAGE_RANGE.first);
 
   // face api model load 및 캠 활성화
   useFaceApi(videoRef);
@@ -62,6 +63,12 @@ const FaceCanvas = () => {
     const imageDataUrl = tmp.toDataURL('image/webp');
     setCapturedImage(imageDataUrl);
 
+    // 현재 이미지 번호에 따라 당도 계산
+    const percent = Math.round(
+      (imageNumberRef.current / IMAGE_RANGE.last) * 100
+    );
+    setSugarContent(percent);
+
     // 이미지 키 설정
     setImageKey(Date.now().toString());
   };
@@ -78,7 +85,6 @@ const FaceCanvas = () => {
     }
     const firstImg = document.getElementById(`img${IMAGE_RANGE.first}`);
     firstImg?.classList.add('opacity-100', 'z-[2]');
-    lastImageNumberRef.current = IMAGE_RANGE.first;
   };
 
   const updateAppleImage = (nextNumber: number) => {
@@ -89,10 +95,9 @@ const FaceCanvas = () => {
     if (nextNumber === lastImageNumberRef.current) return;
 
     const newImage = document.getElementById(`img${nextNumber}`);
-    const lastImage =
-      lastImageNumberRef.current !== -1
-        ? document.getElementById(`img${lastImageNumberRef.current}`)
-        : null;
+    const lastImage = document.getElementById(
+      `img${lastImageNumberRef.current}`
+    );
 
     lastImage?.classList.remove('opacity-100', 'z-[2]');
     newImage?.classList.add('opacity-100', 'z-[2]');
@@ -117,6 +122,12 @@ const FaceCanvas = () => {
     ) {
       imageNumberRef.current--;
     }
+
+    // 범위 초과 방지
+    imageNumberRef.current = Math.max(
+      IMAGE_RANGE.first,
+      Math.min(IMAGE_RANGE.last, imageNumberRef.current)
+    );
 
     updateAppleImage(imageNumberRef.current);
   };
@@ -259,6 +270,7 @@ const FaceCanvas = () => {
       </div>
 
       <ScanResultModal
+        sugarContent={sugarContent}
         imageKey={imageKey}
         src={capturedImage}
         handleModal={setOpenScanResultModal}

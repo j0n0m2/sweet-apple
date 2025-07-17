@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 interface Props {
   handleModal: (state: boolean) => void;
   modalOpen: boolean;
-  imageKey: string;
+  imageKey: string | null;
   children?: React.ReactNode;
 }
 
