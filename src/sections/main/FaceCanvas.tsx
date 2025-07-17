@@ -13,7 +13,25 @@ import Header from '@/sections/main/ui/Header';
 const FaceCanvas = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState<string>('');
-  const [openScanResultModal, isOpenScanResultModal] = useState<boolean>(false);
+  const [openScanResultModal, setOpenScanResultModal] =
+    useState<boolean>(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null!);
+  const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const partsRef = useRef<Part[]>(initialParts);
+  const dragState = useRef<{
+    dragPart: null | Part;
+    offsetX: number;
+    offsetY: number;
+  }>({ dragPart: null, offsetX: 0, offsetY: 0 });
+
+  const imageNumberRef = useRef(IMAGE_RANGE.first);
+  const lastImageNumberRef = useRef(-1);
+
+  // face api model load 및 캠 활성화
+  useFaceApi(videoRef);
+  useDragHandlers(canvasRef, dragState, partsRef);
 
   const handleCapture = () => {
     const canvas = canvasRef.current;
@@ -48,29 +66,7 @@ const FaceCanvas = () => {
     setImageKey(Date.now().toString());
   };
 
-  const videoRef = useRef<HTMLVideoElement>(null!);
-  const canvasRef = useRef<HTMLCanvasElement>(null!);
-  const imageContainerRef = useRef<HTMLDivElement | null>(null);
-  const partsRef = useRef<Part[]>(initialParts);
-  const dragState = useRef<{
-    dragPart: null | Part;
-    offsetX: number;
-    offsetY: number;
-  }>({ dragPart: null, offsetX: 0, offsetY: 0 });
-
-  const imageNumberRef = useRef(1);
-  const lastImageNumberRef = useRef(-1);
-
-  // face api model load 및 캠 활성화
-  useFaceApi(videoRef);
-  useDragHandlers(canvasRef, dragState, partsRef);
-
-  useEffect(() => {
-    const video = videoRef.current!;
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext('2d')!;
-    const displaySize = { width: video.width, height: video.height };
-
+  const preloadImages = () => {
     // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
     // active 클래스가 부여된 img 요소만 보이게 됨
     for (let i = IMAGE_RANGE.first; i <= IMAGE_RANGE.last; i++) {
@@ -80,126 +76,153 @@ const FaceCanvas = () => {
       img.className = 'absolute top-0 left-0 w-full h-full opacity-0 z-[1]';
       imageContainerRef.current!.appendChild(img);
     }
-
-    // 기본 이미지 설정
     const firstImg = document.getElementById(`img${IMAGE_RANGE.first}`);
     firstImg?.classList.add('opacity-100', 'z-[2]');
     lastImageNumberRef.current = IMAGE_RANGE.first;
-    imageNumberRef.current = IMAGE_RANGE.first;
+  };
+
+  const updateAppleImage = (nextNumber: number) => {
+    nextNumber = Math.max(
+      IMAGE_RANGE.first,
+      Math.min(IMAGE_RANGE.last, nextNumber)
+    );
+    if (nextNumber === lastImageNumberRef.current) return;
+
+    const newImage = document.getElementById(`img${nextNumber}`);
+    const lastImage =
+      lastImageNumberRef.current !== -1
+        ? document.getElementById(`img${lastImageNumberRef.current}`)
+        : null;
+
+    lastImage?.classList.remove('opacity-100', 'z-[2]');
+    newImage?.classList.add('opacity-100', 'z-[2]');
+    lastImageNumberRef.current = nextNumber;
+  };
+
+  const handleExpression = (
+    happy: number,
+    angry: number,
+    fearful: number,
+    disgusted: number
+  ) => {
+    const isHappyDominant =
+      happy > disgusted && happy > fearful && happy > angry;
+
+    if (isHappyDominant && happy > THRESHOLD.happy) {
+      imageNumberRef.current++;
+    } else if (
+      disgusted > THRESHOLD.disgusted ||
+      fearful > THRESHOLD.fearful ||
+      angry > THRESHOLD.angry
+    ) {
+      imageNumberRef.current--;
+    }
+
+    updateAppleImage(imageNumberRef.current);
+  };
+
+  const drawParts = (
+    ctx: CanvasRenderingContext2D,
+    landmarks: faceapi.FaceLandmarks68,
+    video: HTMLVideoElement
+  ) => {
+    const scaleX = video.videoWidth / video.width;
+    const scaleY = video.videoHeight / video.height;
+
+    partsRef.current.forEach((part) => {
+      let points: faceapi.Point[] = [];
+      if (part.name === 'leftEye') points = landmarks.getLeftEye();
+      else if (part.name === 'rightEye') points = landmarks.getRightEye();
+      else if (part.name === 'mouth') points = landmarks.getMouth();
+
+      const minX = Math.min(...points.map((pt) => pt.x)) * scaleX - 10;
+      const maxX = Math.max(...points.map((pt) => pt.x)) * scaleX + 10;
+      const minY = Math.min(...points.map((pt) => pt.y)) * scaleY;
+      const maxY = Math.max(...points.map((pt) => pt.y)) * scaleY;
+
+      const partWidth = maxX - minX;
+      const partHeight = maxY - minY;
+
+      const tmp = document.createElement('canvas');
+      tmp.width = part.width;
+      tmp.height = part.height;
+
+      const tmpCtx = tmp.getContext('2d')!;
+
+      tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
+      tmpCtx.save();
+      tmpCtx.beginPath();
+
+      points.forEach((pt, i) => {
+        const x = (pt.x * scaleX - minX) * (part.width / partWidth);
+        const y = (pt.y * scaleY - minY) * (part.height / partHeight);
+        if (i === 0) {
+          tmpCtx.moveTo(x, y);
+        } else {
+          tmpCtx.lineTo(x, y);
+        }
+      });
+
+      tmpCtx.closePath();
+      tmpCtx.clip();
+
+      tmpCtx.drawImage(
+        video,
+        minX,
+        minY,
+        partWidth,
+        partHeight,
+        0,
+        0,
+        tmp.width,
+        tmp.height
+      );
+
+      tmpCtx.restore();
+      ctx.drawImage(tmp, part.posX, part.posY);
+    });
+  };
+
+  useEffect(() => {
+    preloadImages();
+
+    const video = videoRef.current!;
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    const displaySize = { width: video.width, height: video.height };
 
     video.addEventListener('play', () => {
       const interval = setInterval(async () => {
-        // 비디오가 멈춰 있거나 종료된 상태라면(= 다른 메뉴로 이동한 상태) 얼굴 인식 함수 종료
         if (video.paused || video.ended) return;
 
         const detections = await faceapi
-          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          // 비디오 스트림에서 얼굴 감지
+          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()) // 속도가 빠른 모델 사용
+          // 68개의 얼굴 랜드마크 계산
           .withFaceLandmarks()
+          // 표정 인식
           .withFaceExpressions();
 
+        // 모델이 찾은 좌표를 캔버스 크기에 맞게 조정
         const resizedDetections = faceapi.resizeResults(
           detections,
           displaySize
         );
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        resizedDetections.forEach((detection) => {
-          const { happy, angry, fearful, disgusted } = detection.expressions;
+        resizedDetections.forEach((det) => {
+          const { happy, angry, fearful, disgusted } = det.expressions;
 
-          // 특정 감정이 설정한 한계점을 넘으면 보여질 이미지 번호를 조정
-          // 미소를 지어야 감지되는 행복함은 상태가 좋은 사과의 이미지를 보여줌
-
-          // 행복함이 다른 감정보다 낮은 수치라면 이미지 번호를 증가시키지 않도록 조정
-          if (happy > disgusted || happy > fearful || happy > angry) {
-            if (happy > THRESHOLD.happy) imageNumberRef.current++;
-          }
-
-          if (
-            // 역겨움, 두려움, 화남 등 표정이 일그려야 감지되는 감정들은 썩은 사과의 이미지를 보여줌
-            disgusted > THRESHOLD.disgusted ||
-            fearful > THRESHOLD.fearful ||
-            angry > THRESHOLD.angry
-          )
-            imageNumberRef.current--;
-
-          imageNumberRef.current = Math.max(
-            IMAGE_RANGE.first,
-            Math.min(IMAGE_RANGE.last, imageNumberRef.current)
-          );
-
-          if (imageNumberRef.current !== lastImageNumberRef.current) {
-            const newImage = document.getElementById(
-              `img${imageNumberRef.current}`
-            );
-            const lastImage =
-              lastImageNumberRef.current !== -1
-                ? document.getElementById(`img${lastImageNumberRef.current}`)
-                : null;
-
-            if (lastImage) lastImage.classList.remove('opacity-100', 'z-[2]');
-            newImage?.classList.add('opacity-100', 'z-[2]');
-            lastImageNumberRef.current = imageNumberRef.current;
-          }
-
-          const landmarks = detection.landmarks;
-          const scaleX = video.videoWidth / video.width;
-          const scaleY = video.videoHeight / video.height;
-
-          partsRef.current.forEach((part) => {
-            let points: faceapi.Point[] = [];
-            if (part.name === 'leftEye') points = landmarks.getLeftEye();
-            else if (part.name === 'rightEye') points = landmarks.getRightEye();
-            else if (part.name === 'mouth') points = landmarks.getMouth();
-
-            const minX = Math.min(...points.map((pt) => pt.x)) * scaleX - 10;
-            const maxX = Math.max(...points.map((pt) => pt.x)) * scaleX + 10;
-            const minY = Math.min(...points.map((pt) => pt.y)) * scaleY;
-            const maxY = Math.max(...points.map((pt) => pt.y)) * scaleY;
-
-            const partWidth = maxX - minX;
-            const partHeight = maxY - minY;
-
-            const tmp = document.createElement('canvas');
-            const tmpCtx = tmp.getContext('2d')!;
-
-            tmp.width = part.width;
-            tmp.height = part.height;
-
-            tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
-            tmpCtx.save();
-            tmpCtx.beginPath();
-
-            points.forEach((pt, i) => {
-              const x = (pt.x * scaleX - minX) * (part.width / partWidth);
-              const y = (pt.y * scaleY - minY) * (part.height / partHeight);
-              if (i === 0) tmpCtx.moveTo(x, y);
-              else tmpCtx.lineTo(x, y);
-            });
-
-            tmpCtx.closePath();
-            tmpCtx.clip();
-
-            tmpCtx.drawImage(
-              video,
-              minX,
-              minY,
-              partWidth,
-              partHeight,
-              0,
-              0,
-              tmp.width,
-              tmp.height
-            );
-
-            tmpCtx.restore();
-            ctx.drawImage(tmp, part.posX, part.posY);
-          });
+          handleExpression(happy, angry, fearful, disgusted);
+          drawParts(ctx, det.landmarks, video);
         });
       }, 100);
 
       return () => clearInterval(interval);
     });
   }, []);
+
   return (
     <>
       <video
@@ -238,7 +261,7 @@ const FaceCanvas = () => {
       <ScanResultModal
         imageKey={imageKey}
         src={capturedImage}
-        handleModal={isOpenScanResultModal}
+        handleModal={setOpenScanResultModal}
         modalOpen={openScanResultModal}
       />
     </>
