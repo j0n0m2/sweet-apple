@@ -4,7 +4,7 @@ import type { Part } from '@/sections/main/model/type';
 import { useFaceApi } from '@/sections/main/hooks/useFaceApi';
 import { initialParts } from '@/sections/main/model/parts';
 import { useDragHandlers } from '@/sections/main/hooks/useDragHandlers';
-import { IMAGE_RANGE } from '@/sections/main/constants/imageRange';
+import { IMAGE_RANGE } from '@/sections/main/constants/IMAGE_RANGE';
 import { THRESHOLD } from '@/sections/main/constants/emotionsThreshold';
 import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
 import ScanResultModal from '@/sections/main/components/ScanResultModal';
@@ -262,6 +262,7 @@ const FaceCanvas = () => {
       <div className="flex h-full flex-col justify-between p-10">
         <Header />
         <button
+          type="button"
           onClick={handleCapture}
           className="h-32 w-32 cursor-pointer rounded-2xl border-black bg-white px-4 py-2 text-[24px] font-bold hover:bg-blue-300 hover:text-white"
         >
