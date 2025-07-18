@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
+    "clsx": "^2.1.1",
     "face-api.js": "^0.22.2",
     "framer-motion": "^12.23.5",
     "react": "^19.1.0",
