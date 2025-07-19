@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
 import ModalBackgroundAnimation from '@/sections/main/animations/ModalBackgroundAnimation';
 import downloadImage from '@/sections/main/utils/downloadImage';
-import resultMessage from '@/sections/main/utils/resultMessage';
+import getScanResult from '@/sections/main/utils/getScanResult';
 
 interface Props {
   src: string | null;
@@ -43,7 +43,7 @@ const ScanResultModal = ({
             <hr />
 
             <h2 className="text-center italic">
-              {resultMessage(sugarContent).title}
+              {getScanResult(sugarContent).title}
             </h2>
 
             <div>
@@ -71,7 +71,7 @@ const ScanResultModal = ({
                 <tr className="border-1">
                   <td className="p-1">
                     <ul className="flex flex-col gap-2">
-                      {resultMessage(sugarContent).message.map(
+                      {getScanResult(sugarContent).message.map(
                         (item, index) => (
                           <li key={index}>
                             <h3 className="font-bold">• {item.subhead}</h3>
