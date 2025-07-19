@@ -25,7 +25,7 @@ const ScanResultModalAnimation = ({
         }}
         exit={{ top: '150vh', y: '-50%' }}
         transition={{ type: 'spring', stiffness: 300, damping: 50 }}
-        className="fixed left-1/2 z-50 flex h-200 w-100 -translate-x-1/2 cursor-pointer flex-col justify-between border-2 border-black bg-white"
+        className="fixed left-1/2 z-50 flex w-100 -translate-x-1/2 cursor-pointer flex-col justify-between border-2 border-black bg-white"
       >
         {children}
       </motion.div>

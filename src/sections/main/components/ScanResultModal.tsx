@@ -40,6 +40,11 @@ const ScanResultModal = ({
         >
           <div ref={captureRef} className="flex flex-col gap-2 bg-white p-4">
             <h1 className="text-center text-[32px] font-bold">검사 결과</h1>
+            <hr />
+
+            <h2 className="text-center italic">
+              {resultMessage(sugarContent).title}
+            </h2>
 
             <div>
               <hr />
@@ -65,8 +70,18 @@ const ScanResultModal = ({
                 </tr>
                 <tr className="border-1">
                   <td className="p-1">
-                    <h2>{resultMessage(sugarContent).title}</h2>
-                    <p>{resultMessage(sugarContent).message}</p>
+                    <ul className="flex flex-col gap-2">
+                      {resultMessage(sugarContent).message.map(
+                        (item, index) => (
+                          <li key={index}>
+                            <h3 className="font-bold">• {item.subhead}</h3>
+                            <p className="text-[15px] text-gray-700">
+                              {item.content}
+                            </p>
+                          </li>
+                        )
+                      )}
+                    </ul>
                   </td>
                 </tr>
               </tbody>
