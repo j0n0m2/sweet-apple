@@ -27,8 +27,8 @@ const FaceCanvas = () => {
     offsetY: number;
   }>({ dragPart: null, offsetX: 0, offsetY: 0 });
 
-  const imageNumberRef = useRef(IMAGE_RANGE.first);
-  const lastImageNumberRef = useRef(IMAGE_RANGE.first);
+  const imageNumberRef = useRef(IMAGE_RANGE.middle);
+  const lastImageNumberRef = useRef(IMAGE_RANGE.middle);
 
   // face api model load 및 캠 활성화
   useFaceApi(videoRef);
@@ -83,8 +83,8 @@ const FaceCanvas = () => {
       img.className = 'absolute top-0 left-0 w-full h-full opacity-0 z-[1]';
       imageContainerRef.current!.appendChild(img);
     }
-    const firstImg = document.getElementById(`img${IMAGE_RANGE.first}`);
-    firstImg?.classList.add('opacity-100', 'z-[2]');
+    const startImg = document.getElementById(`img${IMAGE_RANGE.middle}`);
+    startImg?.classList.add('opacity-100', 'z-[2]');
   };
 
   const updateAppleImage = (nextNumber: number) => {
