@@ -1,6 +1,11 @@
 import Market from '@/sections/market';
 
-const MENU_DATA = [
+interface MenuItem {
+  name: string;
+  content: string | React.ReactElement;
+}
+
+const MENU_DATA: MenuItem[] = [
   {
     name: 'How',
     content: `당신의 미소는 얼마나 달콤할까요? \n 눈과 입을 이리저리 움직여보세요.`,
