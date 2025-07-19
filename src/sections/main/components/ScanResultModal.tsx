@@ -1,8 +1,8 @@
-import ModalBackgroundAnimation from '@/sections/main/animations/modalBackgroundAnimation';
-import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
-import SCAN_RESULT from '../constants/scanResultMessage';
-import { toJpeg } from 'html-to-image';
 import { useRef } from 'react';
+import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
+import ModalBackgroundAnimation from '@/sections/main/animations/ModalBackgroundAnimation';
+import downloadImage from '@/sections/main/utils/downloadImage';
+import resultMessage from '@/sections/main/utils/resultMessage';
 
 interface Props {
   src: string | null;
@@ -11,17 +11,6 @@ interface Props {
   imageKey: string | null;
   sugarContent: number | null;
 }
-
-const resultMessage = (sugarContent: number | null) => {
-  if (sugarContent === null)
-    return {
-      title: '오류가 발생했습니다. 당도 측정을 다시 해주세요.',
-      message: '',
-    };
-  if (sugarContent < 40) return SCAN_RESULT[0];
-  if (sugarContent < 70) return SCAN_RESULT[1];
-  return SCAN_RESULT[2];
-};
 
 const ScanResultModal = ({
   sugarContent,
@@ -37,17 +26,8 @@ const ScanResultModal = ({
 
     if (!captureRef.current) return;
 
-    const dataUrl = await toJpeg(captureRef.current, {
-      skipFonts: true,
-      backgroundColor: '#ffffff',
-      quality: 0.95,
-      pixelRatio: 2,
-    });
-
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'scan_result.jpg';
-    link.click();
+    //지정한 영역을 JPEG 이미지로 렌더링.
+    downloadImage(captureRef.current, 'scan-result.jpeg');
   };
 
   return (
