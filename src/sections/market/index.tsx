@@ -6,12 +6,21 @@ import { formattedDate } from '@/sections/market/utils/formatTime';
 const MarketList = () => {
   const { data: apples } = useMarketItems();
   return (
-    <ul className="flex max-h-[800px] flex-wrap gap-24 overflow-y-scroll py-8">
+    <ul className="flex max-h-[800px] flex-wrap gap-8 overflow-y-scroll py-8">
       {apples.map((item, index) => (
-        <li key={index} className="rounded-lg border-1 p-4">
-          <img src={item.imgURL} alt={item.name} />
-          <div>Name: {item.name}</div>
-          <div>time: {formattedDate(item.writeTime)}</div>
+        <li
+          key={index}
+          className="flex h-auto w-full max-w-[8em] flex-col items-center rounded-lg border p-4"
+        >
+          <div className="w-full max-w-[8em]">
+            <img
+              src={item.imgURL}
+              alt={item.name}
+              className="h-auto w-full object-contain"
+            />
+          </div>
+          <p>{item.name}</p>
+          <p className="text-[14px]">{formattedDate(item.writeTime)}</p>
         </li>
       ))}
     </ul>
