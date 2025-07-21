@@ -88,10 +88,6 @@ const FaceCanvas = () => {
   };
 
   const updateAppleImage = (nextNumber: number) => {
-    nextNumber = Math.max(
-      IMAGE_RANGE.first,
-      Math.min(IMAGE_RANGE.last, nextNumber)
-    );
     if (nextNumber === lastImageNumberRef.current) return;
 
     const newImage = document.getElementById(`img${nextNumber}`);
@@ -110,26 +106,33 @@ const FaceCanvas = () => {
     fearful: number,
     disgusted: number
   ) => {
-    const isHappyDominant =
-      happy > disgusted && happy > fearful && happy > angry;
+    let delta = 0;
 
-    if (isHappyDominant && happy > THRESHOLD.happy) {
-      imageNumberRef.current++;
+    if (
+      happy > disgusted &&
+      happy > fearful &&
+      happy > angry &&
+      happy > THRESHOLD.happy
+    ) {
+      delta = 1;
     } else if (
       disgusted > THRESHOLD.disgusted ||
       fearful > THRESHOLD.fearful ||
       angry > THRESHOLD.angry
     ) {
-      imageNumberRef.current--;
+      delta = -1;
     }
 
-    // 범위 초과 방지
-    imageNumberRef.current = Math.max(
+    // 이미지 범위에서 벗어나는 것을 방지 [ ex) 0 or 22 ]
+    const nextNumber = Math.max(
       IMAGE_RANGE.first,
-      Math.min(IMAGE_RANGE.last, imageNumberRef.current)
+      Math.min(IMAGE_RANGE.last, imageNumberRef.current + delta)
     );
 
-    updateAppleImage(imageNumberRef.current);
+    if (nextNumber !== imageNumberRef.current) {
+      updateAppleImage(nextNumber);
+      imageNumberRef.current = nextNumber;
+    }
   };
 
   const drawParts = (
