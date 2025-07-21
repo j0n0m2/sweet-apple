@@ -77,7 +77,7 @@ const FaceCanvas = () => {
     // active 클래스가 부여된 img 요소만 보이게 됨
     for (let i = IMAGE_RANGE.first; i <= IMAGE_RANGE.last; i++) {
       const img = document.createElement('img');
-      img.src = `/img/${i}.png`;
+      img.src = `/img/${i}.webp`;
       img.id = `img${i}`;
       img.className = 'absolute top-0 left-0 w-full h-full opacity-0 z-[1]';
       imageContainerRef.current!.appendChild(img);
