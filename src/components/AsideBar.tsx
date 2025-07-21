@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import clsx from 'clsx';
 import MENU_DATA from '@/constants/MENU_DATA';
+import { useMenu } from '@/store/menuStore';
 
 const AsideBar = () => {
-  const [menuIndex, setMenuIndex] = useState(0);
-
+  const { menuIndex, setMenuIndex } = useMenu();
   return (
     <div className="z-20 h-full w-full flex-1 border-l border-[#003661] bg-[linear-gradient(270deg,_#ffffff60_0%,_#ffffff_100%)] text-[#003661]">
       <ul className="flex">

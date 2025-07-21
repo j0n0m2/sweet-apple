@@ -1,23 +1,19 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useModal } from '../store/modalStore';
 
 interface Props {
-  handleModal: (state: boolean) => void;
-  modalOpen: boolean;
   imageKey: string | null;
   children?: React.ReactNode;
 }
 
-const ScanResultModalAnimation = ({
-  handleModal,
-  modalOpen,
-  imageKey,
-  children,
-}: Props) => {
+const ScanResultModalAnimation = ({ imageKey, children }: Props) => {
+  const { modalOpen, toggleModal } = useModal();
   return (
     <AnimatePresence mode="wait">
       <motion.div
+        // 이미지 키가 새로 들어오면 모달이 화면 밖으로 나갔다가 다시 들어오도록 key로 설정
         key={imageKey}
-        onClick={() => handleModal(!modalOpen)}
+        onClick={() => toggleModal()}
         initial={{ top: '150vh', y: '-50%' }}
         animate={{
           top: modalOpen ? '50vh' : '130vh',

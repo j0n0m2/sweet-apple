@@ -1,24 +1,23 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
 import ModalBackgroundAnimation from '@/sections/main/animations/ModalBackgroundAnimation';
 import downloadImage from '@/sections/main/utils/downloadImage';
 import getScanResult from '@/sections/main/utils/getScanResult';
+import { useMenu } from '@/store/menuStore';
+import { useModal } from '../store/modalStore';
 
 interface Props {
   src: string | null;
-  handleModal: (state: boolean) => void;
-  modalOpen: boolean;
   imageKey: string | null;
   sugarContent: number | null;
 }
 
-const ScanResultModal = ({
-  sugarContent,
-  src,
-  handleModal,
-  modalOpen,
-  imageKey,
-}: Props) => {
+const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
+  const { closeModal } = useModal();
+  const { setMenuIndex } = useMenu();
+  const [appleName, setAppleName] = useState<string>('');
+  const [isLoading, setLoading] = useState<boolean>(false);
+
   const captureRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async (e: React.MouseEvent) => {
@@ -30,14 +29,23 @@ const ScanResultModal = ({
     downloadImage(captureRef.current, 'scan-result.jpeg');
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!appleName) {
+      alert('사과 이름을 입력해주세요.');
+      return;
+    }
+    setLoading(true);
+    closeModal();
+    setAppleName('');
+    setMenuIndex(1);
+  };
+
   return (
     <>
       {src && (
-        <ScanResultModalAnimation
-          handleModal={handleModal}
-          modalOpen={modalOpen}
-          imageKey={imageKey}
-        >
+        <ScanResultModalAnimation imageKey={imageKey}>
           <div ref={captureRef} className="flex flex-col gap-2 bg-white p-4">
             <h1 className="text-center text-[32px] font-bold">검사 결과</h1>
             <hr />
@@ -89,7 +97,10 @@ const ScanResultModal = ({
           </div>
 
           <div>
-            <form action="submit" className="flex flex-col items-end gap-2 p-4">
+            <form
+              className="flex flex-col items-end gap-2 p-4"
+              onSubmit={handleSubmit}
+            >
               <p className="text-gray-400">
                 사과 이름을 적고 마켓에 올려보세요
               </p>
@@ -99,6 +110,10 @@ const ScanResultModal = ({
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
+                  onChange={(e) => {
+                    setAppleName(e.target.value);
+                  }}
+                  value={appleName}
                   type="text"
                   className="border-1 p-1"
                   placeholder="사과 이름을 작성해주세요"
@@ -119,7 +134,6 @@ const ScanResultModal = ({
                   type="submit"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleModal(false);
                   }}
                   className="flex-2 cursor-pointer rounded-lg border-1 bg-white px-4 py-2 text-gray-800"
                 >
@@ -131,10 +145,7 @@ const ScanResultModal = ({
         </ScanResultModalAnimation>
       )}
 
-      <ModalBackgroundAnimation
-        handleModal={handleModal}
-        modalOpen={modalOpen}
-      />
+      <ModalBackgroundAnimation />
     </>
   );
 };

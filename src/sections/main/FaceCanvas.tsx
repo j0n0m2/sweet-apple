@@ -14,8 +14,6 @@ const FaceCanvas = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState<string | null>(null);
   const [sugarContent, setSugarContent] = useState<number | null>(null);
-  const [openScanResultModal, setOpenScanResultModal] =
-    useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
@@ -277,8 +275,6 @@ const FaceCanvas = () => {
         sugarContent={sugarContent}
         imageKey={imageKey}
         src={capturedImage}
-        handleModal={setOpenScanResultModal}
-        modalOpen={openScanResultModal}
       />
     </>
   );

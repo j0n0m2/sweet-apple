@@ -1,11 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useModal } from '@/sections/main/store/modalStore';
 
-interface Props {
-  handleModal: (state: boolean) => void;
-  modalOpen: boolean;
-}
-
-const ModalBackgroundAnimation = ({ handleModal, modalOpen }: Props) => {
+const ModalBackgroundAnimation = () => {
+  const { modalOpen, closeModal } = useModal();
   return (
     <AnimatePresence>
       {modalOpen && (
@@ -13,7 +10,7 @@ const ModalBackgroundAnimation = ({ handleModal, modalOpen }: Props) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={() => handleModal(false)}
+          onClick={() => closeModal()}
           className="bg-opacity-50 fixed top-0 left-0 z-40 h-full w-full bg-[rgba(0,0,0,0.5)]"
         />
       )}
