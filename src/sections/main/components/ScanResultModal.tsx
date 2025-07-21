@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
-  const { mutate, isLoading } = useUploadApple();
+  const { mutate, isPending } = useUploadApple();
   const { closeModal } = useModal();
   const { setMenuIndex } = useMenu();
   const [appleName, setAppleName] = useState<string>('');
@@ -153,7 +153,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
                   }}
                   className="flex-2 cursor-pointer rounded-lg border-1 bg-white px-4 py-2 text-gray-800"
                 >
-                  {isLoading ? '업로드 중...' : '마켓에 올리기'}
+                  {isPending ? '업로드 중...' : '마켓에 올리기'}
                 </button>
               </div>
             </form>
