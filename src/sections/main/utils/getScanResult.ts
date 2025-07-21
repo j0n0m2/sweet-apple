@@ -1,6 +1,6 @@
 import SCAN_RESULT from '@/sections/main/constants/scanResultMessage';
 
-export default function getScanResult(sugarContent: number | null) {
+export function getScanResult(sugarContent: number | null) {
   if (sugarContent === null)
     return {
       title: '오류가 발생했습니다. 검사를 다시 해주세요.',

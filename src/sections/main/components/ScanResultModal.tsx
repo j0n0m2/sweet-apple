@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
 import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
 import ModalBackgroundAnimation from '@/sections/main/animations/ModalBackgroundAnimation';
-import downloadImage from '@/sections/main/utils/downloadImage';
-import getScanResult from '@/sections/main/utils/getScanResult';
+import { downloadImage } from '@/sections/main/utils/downloadImage';
+import { getScanResult } from '@/sections/main/utils/getScanResult';
 import { useMenu } from '@/store/menuStore';
-import { useModal } from '../store/modalStore';
+import { useModal } from '@/sections/main/store/modalStore';
+import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
 
 interface Props {
   src: string | null;
@@ -13,13 +14,12 @@ interface Props {
 }
 
 const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
+  const { mutate, isLoading } = useUploadApple();
   const { closeModal } = useModal();
   const { setMenuIndex } = useMenu();
   const [appleName, setAppleName] = useState<string>('');
-  const [isLoading, setLoading] = useState<boolean>(false);
 
   const captureRef = useRef<HTMLDivElement>(null);
-
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -32,14 +32,30 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!appleName) {
       alert('사과 이름을 입력해주세요.');
       return;
     }
-    setLoading(true);
-    closeModal();
-    setAppleName('');
-    setMenuIndex(1);
+    if (!src || sugarContent === null) {
+      alert('이미지 데이터가 없습니다.');
+      return;
+    }
+
+    mutate(
+      { dataUrl: src, appleName, sugarContent },
+      {
+        onSuccess: () => {
+          alert('마켓에 등록되었습니다!');
+          closeModal();
+          setAppleName('');
+          setMenuIndex(1);
+        },
+        onError: (error) => {
+          alert('업로드 실패: ' + error.message);
+        },
+      }
+    );
   };
 
   return (
@@ -137,7 +153,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
                   }}
                   className="flex-2 cursor-pointer rounded-lg border-1 bg-white px-4 py-2 text-gray-800"
                 >
-                  마켓에 올리기
+                  {isLoading ? '업로드 중...' : '마켓에 올리기'}
                 </button>
               </div>
             </form>
