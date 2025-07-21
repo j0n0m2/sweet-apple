@@ -6,14 +6,15 @@ import { getScanResult } from '@/sections/main/utils/getScanResult';
 import { useMenu } from '@/store/menuStore';
 import { useModal } from '@/sections/main/store/modalStore';
 import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
+import { useCapturedImage } from '../store/capturedImageStore';
 
 interface Props {
-  src: string | null;
   imageKey: string | null;
   sugarContent: number | null;
 }
 
-const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
+const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
+  const { capturedImage, setCapturedImage } = useCapturedImage();
   const { mutate, isPending } = useUploadApple();
   const { closeModal } = useModal();
   const { setMenuIndex } = useMenu();
@@ -37,19 +38,20 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
       alert('사과 이름을 입력해주세요.');
       return;
     }
-    if (!src || sugarContent === null) {
+    if (!capturedImage || sugarContent === null) {
       alert('이미지 데이터가 없습니다.');
       return;
     }
 
     mutate(
-      { dataUrl: src, appleName, sugarContent },
+      { dataUrl: capturedImage, appleName, sugarContent },
       {
         onSuccess: () => {
           alert('마켓에 등록되었습니다!');
           closeModal();
           setAppleName('');
           setMenuIndex(1);
+          setCapturedImage(null);
         },
         onError: (error) => {
           alert('업로드 실패: ' + error.message);
@@ -60,7 +62,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
 
   return (
     <>
-      {src && (
+      {capturedImage && (
         <ScanResultModalAnimation imageKey={imageKey}>
           <div ref={captureRef} className="flex flex-col gap-2 bg-white p-4">
             <h1 className="text-center text-[32px] font-bold">검사 결과</h1>
@@ -72,7 +74,11 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
 
             <div>
               <hr />
-              <img src={src} alt="Captured face" className="grayscale" />
+              <img
+                src={capturedImage}
+                alt="Captured face"
+                className="grayscale"
+              />
               <hr />
             </div>
 
@@ -114,14 +120,13 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
 
           <div>
             <form
-              className="flex flex-col items-end gap-2 p-4"
+              className="flex flex-col items-end gap-4 p-4 pt-0"
               onSubmit={handleSubmit}
             >
-              <p className="text-gray-400">
-                사과 이름을 적고 마켓에 올려보세요
+              <p className="text-[14px] text-gray-400">
+                *사과 이름을 적고 마켓에 올려보세요
               </p>
               <label htmlFor="서명">
-                사과 이름
                 <input
                   onClick={(e) => {
                     e.stopPropagation();
@@ -131,7 +136,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
                   }}
                   value={appleName}
                   type="text"
-                  className="border-1 p-1"
+                  className="border-b-1 pb-2 text-right placeholder:text-right placeholder:text-gray-500"
                   placeholder="사과 이름을 작성해주세요"
                 ></input>
               </label>
@@ -142,7 +147,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
                     handleDownload(e);
                   }}
                   type="button"
-                  className="flex-1 cursor-pointer rounded-lg bg-gray-400 px-4 py-2 text-gray-800"
+                  className="flex-1 cursor-pointer rounded-lg bg-gray-400 py-2 text-gray-800"
                 >
                   결과 다운로드
                 </button>
@@ -151,7 +156,7 @@ const ScanResultModal = ({ sugarContent, src, imageKey }: Props) => {
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
-                  className="flex-2 cursor-pointer rounded-lg border-1 bg-white px-4 py-2 text-gray-800"
+                  className="flex-2 cursor-pointer rounded-lg border-1 bg-white py-2 text-gray-800"
                 >
                   {isPending ? '업로드 중...' : '마켓에 올리기'}
                 </button>

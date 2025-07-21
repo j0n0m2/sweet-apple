@@ -9,11 +9,12 @@ import { THRESHOLD } from '@/sections/main/constants/emotionsThreshold';
 import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
 import ScanResultModal from '@/sections/main/components/ScanResultModal';
 import Header from '@/sections/main/ui/Header';
+import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
 
 const FaceCanvas = () => {
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState<string | null>(null);
   const [sugarContent, setSugarContent] = useState<number | null>(null);
+  const { setCapturedImage } = useCapturedImage();
 
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
@@ -271,11 +272,7 @@ const FaceCanvas = () => {
         </button>
       </div>
 
-      <ScanResultModal
-        sugarContent={sugarContent}
-        imageKey={imageKey}
-        src={capturedImage}
-      />
+      <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
     </>
   );
 };
