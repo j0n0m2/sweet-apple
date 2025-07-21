@@ -20,6 +20,7 @@ const MarketList = () => {
             />
           </div>
           <p>{item.name}</p>
+          <p className='text-[16px]'>당도 {item.sugarContent}%</p>
           <p className="text-[14px]">{formattedDate(item.writeTime)}</p>
         </li>
       ))}
