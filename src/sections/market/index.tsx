@@ -1,36 +1,32 @@
-interface Item {
-  name: string;
-  price: number;
-}
+import { useMarketItems } from '@/sections/market/hooks/useMarketItems';
+import { Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { formattedDate } from '@/sections/market/utils/formatTime';
 
-const dummyData: Item[] = [
-  { name: 'Apple', price: 1.2 },
-  { name: 'Banana', price: 0.8 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-  { name: 'Cherry', price: 2.5 },
-];
+const MarketList = () => {
+  const { data: apples } = useMarketItems();
+  return (
+    <ul className="flex max-h-[800px] flex-wrap gap-24 overflow-y-scroll py-8">
+      {apples.map((item, index) => (
+        <li key={index} className="rounded-lg border-1 p-4">
+          <img src={item.imgURL} alt={item.name} />
+          <div>Name: {item.name}</div>
+          <div>time: {formattedDate(item.writeTime)}</div>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 const Market = () => {
   return (
     <div>
       <h1>사과 나눔합니다</h1>
-      <ul className="flex max-h-[800px] flex-wrap gap-24 overflow-y-scroll py-8">
-        {dummyData.map((item, index) => (
-          <li key={index} className="rounded-lg border-1 p-4">
-            <div>Name: {item.name}</div>
-            <div>Price: ${item.price.toFixed(2)}</div>
-          </li>
-        ))}
-      </ul>
+      <ErrorBoundary fallback={<div>Something went wrong</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <MarketList />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 };
