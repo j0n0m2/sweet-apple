@@ -23,7 +23,11 @@ export async function uploadAppleImageAndMeta({
 
   const storageRef = ref(storage, `apples/${Date.now()}.webp`);
 
-  await uploadBytes(storageRef, blob);
+  const metadata = {
+    cacheControl: 'public, max-age=31536000', // 1년 캐시 유지
+  };
+  
+  await uploadBytes(storageRef, blob, metadata);
 
   const imageUrl = await getDownloadURL(storageRef);
 
