@@ -8,7 +8,18 @@ interface MenuItem {
 const MENU_DATA: MenuItem[] = [
   {
     name: 'How',
-    content: `당신의 미소는 얼마나 달콤할까요? \n 눈과 입을 이리저리 움직여보세요.`,
+    content: (
+      <>
+        <p>당신의 미소는 얼마나 달콤할까요? 한 번 확인해보세요!</p>
+        <ul className="mt-2 list-inside list-disc">
+          <li>웹캠을 켜주세요.</li>
+          <li>카메라 권한을 허용해주세요.</li>
+          <li>주변이 밝은 곳에서 진행해주세요.</li>
+          <li>눈과 입을 이리저리 움직여보세요.</li>
+          <li>활짝 웃어보거나 잔뜩 찡그려보세요!</li>
+        </ul>
+      </>
+    ),
   },
   { name: 'Market', content: <Market /> },
   {
