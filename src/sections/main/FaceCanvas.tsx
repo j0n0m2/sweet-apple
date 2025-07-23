@@ -10,11 +10,12 @@ import BackgroundCircle from '@/sections/main/ui/BackgroundCircle';
 import ScanResultModal from '@/sections/main/components/ScanResultModal';
 import Header from '@/sections/main/ui/Header';
 import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
+import clsx from 'clsx';
 
 const FaceCanvas = () => {
   const [imageKey, setImageKey] = useState<string | null>(null);
   const [sugarContent, setSugarContent] = useState<number | null>(null);
-  const { setCapturedImage } = useCapturedImage();
+  const { capturedImage, setCapturedImage } = useCapturedImage();
 
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
@@ -28,6 +29,8 @@ const FaceCanvas = () => {
 
   const imageNumberRef = useRef(IMAGE_RANGE.middle);
   const lastImageNumberRef = useRef(IMAGE_RANGE.middle);
+
+  const containerSize = useRef<number>(750);
 
   // face api model load 및 캠 활성화
   useFaceApi(videoRef);
@@ -139,8 +142,8 @@ const FaceCanvas = () => {
     landmarks: faceapi.FaceLandmarks68,
     video: HTMLVideoElement
   ) => {
-    const scaleX = video.videoWidth / video.width;
-    const scaleY = video.videoHeight / video.height;
+    const ratioX = video.videoWidth / containerSize.current;
+    const ratioY = video.videoHeight / containerSize.current;
 
     partsRef.current.forEach((part) => {
       let points: faceapi.Point[] = [];
@@ -148,27 +151,32 @@ const FaceCanvas = () => {
       else if (part.name === 'rightEye') points = landmarks.getRightEye();
       else if (part.name === 'mouth') points = landmarks.getMouth();
 
-      const minX = Math.min(...points.map((pt) => pt.x)) * scaleX - 10;
-      const maxX = Math.max(...points.map((pt) => pt.x)) * scaleX + 10;
-      const minY = Math.min(...points.map((pt) => pt.y)) * scaleY;
-      const maxY = Math.max(...points.map((pt) => pt.y)) * scaleY;
+      const minX = Math.min(...points.map((pt) => pt.x)) - 10;
+      const maxX = Math.max(...points.map((pt) => pt.x)) + 10;
+      const minY = Math.min(...points.map((pt) => pt.y));
+      const maxY = Math.max(...points.map((pt) => pt.y));
 
       const partWidth = maxX - minX;
       const partHeight = maxY - minY;
 
-      const tmp = document.createElement('canvas');
-      tmp.width = part.width;
-      tmp.height = part.height;
+      const absPosX = part.posX * containerSize.current;
+      const absPosY = part.posY * containerSize.current;
+      const absWidth = part.width * containerSize.current;
+      const absHeight = part.height * containerSize.current;
 
-      const tmpCtx = tmp.getContext('2d')!;
+      const tmp = document.createElement('canvas');
+      tmp.width = absWidth;
+      tmp.height = absHeight;
+
+      const tmpCtx = tmp.getContext('2d', { willReadFrequently: true })!;
 
       tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
       tmpCtx.save();
       tmpCtx.beginPath();
 
       points.forEach((pt, i) => {
-        const x = (pt.x * scaleX - minX) * (part.width / partWidth);
-        const y = (pt.y * scaleY - minY) * (part.height / partHeight);
+        const x = (pt.x - minX) * (absWidth / partWidth);
+        const y = (pt.y - minY) * (absHeight / partHeight);
         if (i === 0) {
           tmpCtx.moveTo(x, y);
         } else {
@@ -181,20 +189,35 @@ const FaceCanvas = () => {
 
       tmpCtx.drawImage(
         video,
-        minX,
-        minY,
-        partWidth,
-        partHeight,
+        minX * ratioX,
+        minY * ratioY,
+        partWidth * ratioX,
+        partHeight * ratioY,
         0,
         0,
-        tmp.width,
-        tmp.height
+        absWidth,
+        absHeight
       );
 
       tmpCtx.restore();
-      ctx.drawImage(tmp, part.posX, part.posY);
+
+      ctx.drawImage(tmp, absPosX, absPosY);
     });
   };
+
+  useEffect(() => {
+    const updateSize = () => {
+      const size = Math.min(window.innerWidth * 0.9, 750);
+      containerSize.current = size;
+      if (canvasRef.current) {
+        canvasRef.current.width = size;
+        canvasRef.current.height = size;
+      }
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
 
   useEffect(() => {
     preloadImages();
@@ -202,7 +225,10 @@ const FaceCanvas = () => {
     const video = videoRef.current!;
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
-    const displaySize = { width: video.width, height: video.height };
+    const displaySize = {
+      width: containerSize.current,
+      height: containerSize.current,
+    };
 
     video.addEventListener('play', () => {
       const interval = setInterval(async () => {
@@ -234,45 +260,54 @@ const FaceCanvas = () => {
 
       return () => clearInterval(interval);
     });
-  }, []);
+  }, [containerSize.current]);
 
   return (
     <>
       <video
         ref={videoRef}
-        className="opacity-0"
-        width={1}
-        height={1}
+        className="absolute z-[-1] opacity-0"
+        playsInline
         autoPlay
         muted
       />
       <div
         ref={imageContainerRef}
-        className="absolute top-[15%] left-1/2 h-[750px] w-[750px] -translate-x-1/2 overflow-hidden"
+        className="absolute top-[12%] left-1/2 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 overflow-hidden sm:top-[15%]"
       ></div>
 
       <canvas
         ref={canvasRef}
-        width={750}
-        height={750}
-        className="absolute top-[15%] left-1/2 z-10 -translate-x-1/2"
+        className="absolute top-[12%] left-1/2 z-10 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 sm:top-[15%]"
       ></canvas>
 
       {/* 배경 원 */}
       <BackgroundCircle />
 
-      <div className="flex h-full flex-col justify-between p-10">
-        <Header />
+      <div className="flex h-full flex-col justify-between p-4 sm:p-10">
+        <div className="flex w-full justify-between">
+          <Header />
+          <button type="button" className="sm:hidden">
+            메뉴
+          </button>
+        </div>
         <button
           type="button"
           onClick={handleCapture}
-          className="h-32 w-32 cursor-pointer rounded-2xl border-black bg-white px-4 py-2 text-[24px] font-bold hover:bg-blue-300 hover:text-white"
+          className={clsx(
+            'rounded-2xl border-black bg-white py-4 text-[19px] font-bold transition-transform duration-500 ease-in-out hover:bg-blue-300 hover:text-white sm:h-32 sm:w-32 sm:text-2xl',
+            capturedImage ? '-translate-y-20' : 'translate-y-0'
+          )}
         >
-          Scan <br /> Apple
+          <p className="hidden justify-center sm:flex">
+            Scan <br />
+            Apple
+          </p>
+          <p className="sm:hidden">Scan Apple</p>
         </button>
-      </div>
 
-      <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
+        <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
+      </div>
     </>
   );
 };

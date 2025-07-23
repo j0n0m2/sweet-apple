@@ -6,7 +6,7 @@ import { getScanResult } from '@/sections/main/utils/getScanResult';
 import { useMenu } from '@/store/menuStore';
 import { useModal } from '@/sections/main/store/modalStore';
 import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
-import { useCapturedImage } from '../store/capturedImageStore';
+import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
 
 interface Props {
   imageKey: string | null;
@@ -64,8 +64,22 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
     <>
       {capturedImage && (
         <ScanResultModalAnimation imageKey={imageKey}>
-          <div ref={captureRef} className="flex flex-col gap-2 bg-white p-4">
-            <h1 className="text-center text-[32px] font-bold">검사 결과</h1>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              closeModal();
+            }}
+            className="absolute top-1 right-3 cursor-pointer text-[24px]"
+          >
+            X
+          </button>
+          <div
+            ref={captureRef}
+            className="flex flex-col gap-2 bg-white p-2 sm:p-4"
+          >
+            <h1 className="text-center text-[24px] font-bold sm:text-[32px]">
+              검사 결과
+            </h1>
             <hr />
 
             <h2 className="text-center italic">
