@@ -1,8 +1,8 @@
 const THRESHOLD = {
   happy: 0.99,
-  angry: 0.7,
-  fearful: 0.7,
-  disgusted: 0.7,
+  angry: 0.5,
+  fearful: 0.5,
+  disgusted: 0.5,
 };
 
 export { THRESHOLD };
