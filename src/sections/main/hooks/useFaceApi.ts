@@ -12,7 +12,7 @@ export const useFaceApi = (videoRef: React.RefObject<HTMLVideoElement>) => {
       faceapi.nets.faceExpressionNet.loadFromUri('./models'),
     ]).then(() => {
       navigator.mediaDevices
-        .getUserMedia({ video: {} })
+        .getUserMedia({ video: { facingMode: 'user' } })
         .then((stream) => {
           videoRef.current!.srcObject = stream;
         })
