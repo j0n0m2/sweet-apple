@@ -6,7 +6,7 @@ import { getScanResult } from '@/sections/main/utils/getScanResult';
 import { useMenu } from '@/store/menuStore';
 import { useModal } from '@/sections/main/store/modalStore';
 import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
-import { useCapturedImage } from '../store/capturedImageStore';
+import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
 
 interface Props {
   imageKey: string | null;
@@ -14,10 +14,10 @@ interface Props {
 }
 
 const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
-  const { capturedImage, setCapturedImage } = useCapturedImage();
+  const { capturedImage } = useCapturedImage();
   const { mutate, isPending } = useUploadApple();
-  const { closeModal } = useModal();
-  const { setMenuIndex } = useMenu();
+  const { modalOpen, closeModal } = useModal();
+  const { setMenuIndex, openMenu } = useMenu();
   const [appleName, setAppleName] = useState<string>('');
 
   const captureRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
           closeModal();
           setAppleName('');
           setMenuIndex(1);
-          setCapturedImage(null);
+          openMenu();
         },
         onError: (error) => {
           alert('업로드 실패: ' + error.message);
@@ -64,8 +64,24 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
     <>
       {capturedImage && (
         <ScanResultModalAnimation imageKey={imageKey}>
-          <div ref={captureRef} className="flex flex-col gap-2 bg-white p-4">
-            <h1 className="text-center text-[32px] font-bold">검사 결과</h1>
+          {modalOpen && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                closeModal();
+              }}
+              className="absolute top-1 right-3 cursor-pointer text-[24px]"
+            >
+              X
+            </button>
+          )}
+          <div
+            ref={captureRef}
+            className="flex flex-col gap-2 bg-white p-2 sm:p-4"
+          >
+            <h1 className="text-center text-[24px] font-bold sm:text-[32px]">
+              검사 결과
+            </h1>
             <hr />
 
             <h2 className="text-center italic">

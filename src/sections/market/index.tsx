@@ -6,11 +6,11 @@ import { formattedDate } from '@/sections/market/utils/formatTime';
 const MarketList = () => {
   const { data: apples } = useMarketItems();
   return (
-    <ul className="flex max-h-[800px] flex-wrap gap-8 overflow-y-scroll py-8">
+    <ul className="flex h-[78dvh] flex-wrap gap-4 overflow-y-scroll py-4 sm:max-h-[800px] sm:gap-4 sm:py-8">
       {apples.map((item, index) => (
         <li
           key={index}
-          className="flex h-auto w-full max-w-[8em] flex-col items-center rounded-lg border p-4"
+          className="flex h-auto w-full max-w-[8em] flex-col items-center rounded-lg border bg-white p-2 sm:max-w-[7em] sm:p-3"
         >
           <div className="w-full max-w-[8em]">
             <img
@@ -19,8 +19,10 @@ const MarketList = () => {
               className="h-auto w-full object-contain"
             />
           </div>
-          <p>{item.name}</p>
-          <p className='text-[16px]'>당도 {item.sugarContent}%</p>
+          <p className="w-full overflow-hidden text-center text-[17px] overflow-ellipsis whitespace-nowrap sm:text-[24px]">
+            {item.name}
+          </p>
+          <p className="text-[16px]">당도 {item.sugarContent}%</p>
           <p className="text-[14px]">{formattedDate(item.writeTime)}</p>
         </li>
       ))}
@@ -30,14 +32,13 @@ const MarketList = () => {
 
 const Market = () => {
   return (
-    <div>
-      <h1>사과 나눔합니다</h1>
+    <>
       <ErrorBoundary fallback={<div>Something went wrong</div>}>
         <Suspense fallback={<div>Loading...</div>}>
           <MarketList />
         </Suspense>
       </ErrorBoundary>
-    </div>
+    </>
   );
 };
 export default Market;
