@@ -27,7 +27,7 @@ const SCAN_RESULT: ScanResult[] = [
           '얼굴 근육의 긴장도가 낮아져 피부가 처지고 탄력이 감소할 수 있습니다.',
       },
       {
-        subhead: '조금 더 살짝 웃어볼까요?',
+        subhead: '살짝 웃어볼까요?',
         content: '',
       },
     ],

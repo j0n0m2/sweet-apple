@@ -314,8 +314,8 @@ const FaceCanvas = () => {
           type="button"
           onClick={handleCapture}
           className={clsx(
-            'rounded-2xl border-black bg-white py-4 text-[19px] font-bold transition-transform duration-500 ease-in-out hover:bg-blue-300 hover:text-white sm:h-32 sm:w-32 sm:text-2xl',
-            isMobile && capturedImage ? '-translate-y-20' : 'translate-y-0'
+            'transition-top relative rounded-2xl border-black bg-white py-4 text-[19px] font-bold duration-500 ease-in-out hover:bg-blue-300 hover:text-white sm:h-32 sm:w-32 sm:text-2xl',
+            isMobile && capturedImage ? 'top-[-5rem]' : 'top-0'
           )}
         >
           <p className="hidden justify-center sm:flex">

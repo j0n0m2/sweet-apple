@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useModal } from '../store/modalStore';
 import { useMediaQuery } from 'react-responsive';
+import clsx from 'clsx';
 
 interface Props {
   imageKey: string | null;
@@ -11,8 +12,8 @@ const ScanResultModalAnimation = ({ imageKey, children }: Props) => {
   const { modalOpen, openModal } = useModal();
 
   // react-responsive 사용해서 모바일 여부 감지
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
-  const isMobileSmall = useMediaQuery({ query: '(max-width: 375px)' });
+  const isMobile = useMediaQuery({ query: '(max-height: 1000px)' });
+  const isMobileSmall = useMediaQuery({ query: '(max-height: 700px)' });
 
   return (
     <AnimatePresence mode="wait">
@@ -30,7 +31,7 @@ const ScanResultModalAnimation = ({ imageKey, children }: Props) => {
             : isMobileSmall
               ? '135dvh'
               : isMobile
-                ? '140dvh'
+                ? '138dvh'
                 : '130dvh',
           y: '-50%',
         }}
@@ -39,7 +40,10 @@ const ScanResultModalAnimation = ({ imageKey, children }: Props) => {
           y: '-50%',
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 50 }}
-        className="fixed left-1/2 z-50 flex max-h-[95dvh] w-[90vw] -translate-x-1/2 cursor-pointer flex-col justify-between overflow-y-scroll border-2 border-black bg-white sm:w-100"
+        className={clsx(
+          'fixed left-1/2 z-50 flex max-h-[95dvh] w-[90vw] -translate-x-1/2 cursor-pointer flex-col justify-between border-2 border-black bg-white sm:w-100',
+          modalOpen ? 'overflow-y-scroll' : 'overflow-no-scroll'
+        )}
         style={{ willChange: 'top, transform' }}
       >
         {children}
