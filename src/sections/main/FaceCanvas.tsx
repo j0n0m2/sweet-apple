@@ -257,7 +257,7 @@ const FaceCanvas = () => {
           // 비디오 스트림에서 얼굴 감지
           .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()) // 속도가 빠른 모델 사용
           // 68개의 얼굴 랜드마크 계산
-          .withFaceLandmarks()
+          .withFaceLandmarks(true)
           // 표정 인식
           .withFaceExpressions();
 

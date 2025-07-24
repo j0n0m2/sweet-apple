@@ -8,7 +8,7 @@ export const useFaceApi = (videoRef: React.RefObject<HTMLVideoElement>) => {
 
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-      faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+      faceapi.nets.faceLandmark68TinyNet.loadFromUri('./models'),
       faceapi.nets.faceExpressionNet.loadFromUri('./models'),
     ]).then(() => {
       navigator.mediaDevices
