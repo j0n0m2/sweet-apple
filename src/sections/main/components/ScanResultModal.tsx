@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ScanResultModalAnimation from '@/sections/main/animations/ScanResultModalAnimation';
 import ModalBackgroundAnimation from '@/sections/main/animations/ModalBackgroundAnimation';
 import { downloadImage } from '@/sections/main/utils/downloadImage';
@@ -7,6 +7,7 @@ import { useMenu } from '@/store/menuStore';
 import { useModal } from '@/sections/main/store/modalStore';
 import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
 import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
+import ScrollHintAnimation from '@/animations/scrollHintAnimation';
 
 interface Props {
   imageKey: string | null;
@@ -14,13 +15,18 @@ interface Props {
 }
 
 const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
   const { capturedImage } = useCapturedImage();
   const { mutate, isPending } = useUploadApple();
   const { modalOpen, closeModal } = useModal();
   const { setMenuIndex, openMenu } = useMenu();
+
   const [appleName, setAppleName] = useState<string>('');
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
+
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -29,6 +35,20 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
     //지정한 영역을 JPEG 이미지로 렌더링.
     downloadImage(captureRef.current, 'scan-result.jpeg');
   };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      setShowScrollHint(scrollHeight - scrollTop > clientHeight + 10);
+    };
+
+    checkScroll();
+    container.addEventListener('scroll', checkScroll);
+    return () => container.removeEventListener('scroll', checkScroll);
+  }, [modalOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +83,7 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
   return (
     <>
       {capturedImage && (
-        <ScanResultModalAnimation imageKey={imageKey}>
+        <ScanResultModalAnimation ref={containerRef} imageKey={imageKey}>
           {modalOpen && (
             <button
               onClick={(e) => {
@@ -180,6 +200,12 @@ const ScanResultModal = ({ sugarContent, imageKey }: Props) => {
             </form>
           </div>
         </ScanResultModalAnimation>
+      )}
+
+      {showScrollHint && modalOpen && (
+        <div className="sm:hidden">
+          <ScrollHintAnimation />
+        </div>
       )}
 
       <ModalBackgroundAnimation />
