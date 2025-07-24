@@ -1,98 +1,125 @@
 import { useEffect } from 'react';
 import type { Part } from '@/sections/main/model/type';
 
-export const useDragHandlers = (
+export function useDragHandlers(
   canvasRef: React.RefObject<HTMLCanvasElement>,
   dragState: React.MutableRefObject<{
     dragPart: null | Part;
     offsetX: number;
     offsetY: number;
   }>,
-  partsRef: React.MutableRefObject<Part[]>
-) => {
+  partsRef: React.MutableRefObject<Part[]>,
+  drawParts: () => void
+) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const handleMouseDown = (e: MouseEvent) => {
+    // 좌표 공통 추출 (PointerEvent | Touch)
+    const getCoords = (e: PointerEvent | Touch) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
 
-      partsRef.current.forEach((part) => {
-        if (
-          x >= part.posX &&
-          x <= part.posX + part.width &&
-          y >= part.posY &&
-          y <= part.posY + part.height
-        ) {
-          dragState.current.dragPart = part;
-          dragState.current.offsetX = x - part.posX;
-          dragState.current.offsetY = y - part.posY;
-        }
-      });
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (dragState.current.dragPart) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+    const startDrag = (x: number, y: number) => {
+      for (const part of partsRef.current) {
+        const absPosX = part.posX * canvas.width;
+        const absPosY = part.posY * canvas.height;
+        const absWidth = part.width * canvas.width;
+        const absHeight = part.height * canvas.height;
 
-        dragState.current.dragPart.posX = x - dragState.current.offsetX;
-        dragState.current.dragPart.posY = y - dragState.current.offsetY;
+        if (
+          x >= absPosX &&
+          x <= absPosX + absWidth &&
+          y >= absPosY &&
+          y <= absPosY + absHeight
+        ) {
+          dragState.current.dragPart = part;
+          dragState.current.offsetX = x - absPosX;
+          dragState.current.offsetY = y - absPosY;
+          break;
+        }
       }
     };
 
-    const handleMouseUp = () => {
+    const moveDrag = (x: number, y: number) => {
+      if (dragState.current.dragPart) {
+        dragState.current.dragPart.posX =
+          (x - dragState.current.offsetX) / canvas.width;
+        dragState.current.dragPart.posY =
+          (y - dragState.current.offsetY) / canvas.height;
+
+        drawParts();
+      }
+    };
+
+    const endDrag = () => {
       dragState.current.dragPart = null;
     };
 
-    const handleWheel = (e: WheelEvent) => {
-      if (dragState.current.dragPart) {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -5 : 5;
-        dragState.current.dragPart.width = Math.max(
-          10,
-          dragState.current.dragPart.width + delta
-        );
-        dragState.current.dragPart.height = Math.max(
-          10,
-          dragState.current.dragPart.height + delta
-        );
-      }
+    // 포인터 이벤트 핸들러
+    const handlePointerDown = (e: PointerEvent) => {
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      startDrag(x, y);
+    };
+    const handlePointerMove = (e: PointerEvent) => {
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      moveDrag(x, y);
+    };
+    const handlePointerUp = (e: PointerEvent) => {
+      e.preventDefault();
+      endDrag();
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (dragState.current.dragPart) {
-        if (e.key === '+' || e.key === '=') {
-          dragState.current.dragPart.width += 10;
-          dragState.current.dragPart.height += 5;
-        } else if (e.key === '-') {
-          dragState.current.dragPart.width = Math.max(
-            10,
-            dragState.current.dragPart.width - 5
-          );
-          dragState.current.dragPart.height = Math.max(
-            10,
-            dragState.current.dragPart.height - 5
-          );
-        }
-      }
+    // 터치 이벤트 핸들러
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getCoords(touch);
+      startDrag(x, y);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getCoords(touch);
+      moveDrag(x, y);
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      endDrag();
     };
 
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('wheel', handleWheel);
-    window.addEventListener('keydown', handleKeyDown);
+    // 이벤트 리스너 등록
+    canvas.addEventListener('pointerdown', handlePointerDown, {
+      passive: false,
+    });
+    window.addEventListener('pointermove', handlePointerMove, {
+      passive: false,
+    });
+    window.addEventListener('pointerup', handlePointerUp, { passive: false });
+
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-      canvas.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
+      canvas.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [canvasRef, dragState, partsRef]);
-};
+  }, [canvasRef, dragState, partsRef, drawParts]);
+}

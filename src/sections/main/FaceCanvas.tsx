@@ -26,6 +26,7 @@ const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastLandmarksRef = useRef<faceapi.FaceLandmarks68 | null>(null);
   const partsRef = useRef<Part[]>(initialParts);
   const dragState = useRef<{
     dragPart: null | Part;
@@ -40,7 +41,14 @@ const FaceCanvas = () => {
 
   // face api model load 및 캠 활성화
   useFaceApi(videoRef);
-  useDragHandlers(canvasRef, dragState, partsRef);
+  useDragHandlers(canvasRef, dragState, partsRef, () => {
+    const ctx = canvasRef.current!.getContext('2d')!;
+    ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+
+    if (lastLandmarksRef.current) {
+      drawParts(ctx, lastLandmarksRef.current, videoRef.current!);
+    }
+  });
 
   const handleCapture = () => {
     const canvas = canvasRef.current;
@@ -82,7 +90,11 @@ const FaceCanvas = () => {
   };
 
   const preloadImages = () => {
+    if (!imageContainerRef.current) return;
     // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
+    // 기존 이미지 제거
+    imageContainerRef.current.innerHTML = '';
+
     // active 클래스가 부여된 img 요소만 보이게 됨
     for (let i = IMAGE_RANGE.first; i <= IMAGE_RANGE.last; i++) {
       const img = document.createElement('img');
@@ -211,6 +223,7 @@ const FaceCanvas = () => {
     });
   };
 
+  // 사과 크기에 맞게 캔버스 크기 조정
   useEffect(() => {
     const updateSize = () => {
       const size = Math.min(window.innerWidth * 0.9, 750);
@@ -258,8 +271,9 @@ const FaceCanvas = () => {
 
         resizedDetections.forEach((det) => {
           const { happy, angry, fearful, disgusted } = det.expressions;
-
           handleExpression(happy, angry, fearful, disgusted);
+
+          lastLandmarksRef.current = det.landmarks;
           drawParts(ctx, det.landmarks, video);
         });
       }, 100);
@@ -279,13 +293,8 @@ const FaceCanvas = () => {
       />
       <div
         ref={imageContainerRef}
-        className="absolute top-[12%] left-1/2 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 overflow-hidden sm:top-[15%]"
+        className="pointer-events-none absolute top-[12%] left-1/2 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 overflow-hidden sm:top-[15%]"
       ></div>
-
-      <canvas
-        ref={canvasRef}
-        className="absolute top-[12%] left-1/2 z-10 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 sm:top-[15%]"
-      ></canvas>
 
       {/* 배경 원 */}
       <BackgroundCircle />
@@ -317,6 +326,12 @@ const FaceCanvas = () => {
         </button>
 
         <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
+
+        <canvas
+          ref={canvasRef}
+          style={{ touchAction: 'none' }}
+          className="absolute top-[12%] left-1/2 z-10 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 sm:top-[15%]"
+        ></canvas>
       </div>
     </>
   );
