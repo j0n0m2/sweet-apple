@@ -15,14 +15,19 @@ export function useDragHandlers(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const getCoords = (e: PointerEvent) => {
+    // 좌표 공통 추출 (PointerEvent | Touch)
+    const getCoords = (e: PointerEvent | Touch) => {
       const rect = canvas.getBoundingClientRect();
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
     };
 
-    const handleDown = (e: PointerEvent) => {
-      const { x, y } = getCoords(e);
-
+    const startDrag = (x: number, y: number) => {
       for (const part of partsRef.current) {
         const absPosX = part.posX * canvas.width;
         const absPosY = part.posY * canvas.height;
@@ -43,11 +48,8 @@ export function useDragHandlers(
       }
     };
 
-    const handleMove = (e: PointerEvent) => {
+    const moveDrag = (x: number, y: number) => {
       if (dragState.current.dragPart) {
-        e.preventDefault();
-        const { x, y } = getCoords(e);
-
         dragState.current.dragPart.posX =
           (x - dragState.current.offsetX) / canvas.width;
         dragState.current.dragPart.posY =
@@ -57,20 +59,67 @@ export function useDragHandlers(
       }
     };
 
-    const handleUp = () => {
+    const endDrag = () => {
       dragState.current.dragPart = null;
     };
-    canvas.addEventListener('pointerdown', (e) => {
-      console.log('pointerdown', e);
+
+    // 포인터 이벤트 핸들러
+    const handlePointerDown = (e: PointerEvent) => {
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      startDrag(x, y);
+    };
+    const handlePointerMove = (e: PointerEvent) => {
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      moveDrag(x, y);
+    };
+    const handlePointerUp = (e: PointerEvent) => {
+      e.preventDefault();
+      endDrag();
+    };
+
+    // 터치 이벤트 핸들러
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getCoords(touch);
+      startDrag(x, y);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getCoords(touch);
+      moveDrag(x, y);
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      endDrag();
+    };
+
+    // 이벤트 리스너 등록
+    canvas.addEventListener('pointerdown', handlePointerDown, {
+      passive: false,
     });
-    canvas.addEventListener('pointerdown', handleDown);
-    window.addEventListener('pointermove', handleMove);
-    window.addEventListener('pointerup', handleUp);
+    window.addEventListener('pointermove', handlePointerMove, {
+      passive: false,
+    });
+    window.addEventListener('pointerup', handlePointerUp, { passive: false });
+
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
-      canvas.removeEventListener('pointerdown', handleDown);
-      window.removeEventListener('pointermove', handleMove);
-      window.removeEventListener('pointerup', handleUp);
+      canvas.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
     };
   }, [canvasRef, dragState, partsRef, drawParts]);
 }
