@@ -324,15 +324,15 @@ const FaceCanvas = () => {
           </p>
           <p className="sm:hidden">Scan Apple</p>
         </button>
-
-        <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
-
-        <canvas
-          ref={canvasRef}
-          style={{ touchAction: 'none' }}
-          className="absolute top-[12%] left-1/2 z-10 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 sm:top-[15%]"
-        ></canvas>
       </div>
+
+      <ScanResultModal sugarContent={sugarContent} imageKey={imageKey} />
+
+      <canvas
+        ref={canvasRef}
+        style={{ touchAction: 'none' }}
+        className="absolute top-[12%] left-1/2 z-10 aspect-square w-[115vw] max-w-[750px] -translate-x-1/2 sm:top-[15%]"
+      ></canvas>
     </>
   );
 };
