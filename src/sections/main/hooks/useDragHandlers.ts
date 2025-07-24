@@ -1,98 +1,76 @@
 import { useEffect } from 'react';
 import type { Part } from '@/sections/main/model/type';
 
-export const useDragHandlers = (
+export function useDragHandlers(
   canvasRef: React.RefObject<HTMLCanvasElement>,
   dragState: React.MutableRefObject<{
     dragPart: null | Part;
     offsetX: number;
     offsetY: number;
   }>,
-  partsRef: React.MutableRefObject<Part[]>
-) => {
+  partsRef: React.MutableRefObject<Part[]>,
+  drawParts: () => void
+) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const getCoords = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
 
-      partsRef.current.forEach((part) => {
+    const handleDown = (e: PointerEvent) => {
+      const { x, y } = getCoords(e);
+
+      for (const part of partsRef.current) {
+        const absPosX = part.posX * canvas.width;
+        const absPosY = part.posY * canvas.height;
+        const absWidth = part.width * canvas.width;
+        const absHeight = part.height * canvas.height;
+
         if (
-          x >= part.posX &&
-          x <= part.posX + part.width &&
-          y >= part.posY &&
-          y <= part.posY + part.height
+          x >= absPosX &&
+          x <= absPosX + absWidth &&
+          y >= absPosY &&
+          y <= absPosY + absHeight
         ) {
           dragState.current.dragPart = part;
-          dragState.current.offsetX = x - part.posX;
-          dragState.current.offsetY = y - part.posY;
+          dragState.current.offsetX = x - absPosX;
+          dragState.current.offsetY = y - absPosY;
+          break;
         }
-      });
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (dragState.current.dragPart) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        dragState.current.dragPart.posX = x - dragState.current.offsetX;
-        dragState.current.dragPart.posY = y - dragState.current.offsetY;
       }
     };
 
-    const handleMouseUp = () => {
-      dragState.current.dragPart = null;
-    };
-
-    const handleWheel = (e: WheelEvent) => {
+    const handleMove = (e: PointerEvent) => {
       if (dragState.current.dragPart) {
         e.preventDefault();
-        const delta = e.deltaY > 0 ? -5 : 5;
-        dragState.current.dragPart.width = Math.max(
-          10,
-          dragState.current.dragPart.width + delta
-        );
-        dragState.current.dragPart.height = Math.max(
-          10,
-          dragState.current.dragPart.height + delta
-        );
+        const { x, y } = getCoords(e);
+
+        dragState.current.dragPart.posX =
+          (x - dragState.current.offsetX) / canvas.width;
+        dragState.current.dragPart.posY =
+          (y - dragState.current.offsetY) / canvas.height;
+
+        drawParts();
       }
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (dragState.current.dragPart) {
-        if (e.key === '+' || e.key === '=') {
-          dragState.current.dragPart.width += 10;
-          dragState.current.dragPart.height += 5;
-        } else if (e.key === '-') {
-          dragState.current.dragPart.width = Math.max(
-            10,
-            dragState.current.dragPart.width - 5
-          );
-          dragState.current.dragPart.height = Math.max(
-            10,
-            dragState.current.dragPart.height - 5
-          );
-        }
-      }
+    const handleUp = () => {
+      dragState.current.dragPart = null;
     };
-
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('wheel', handleWheel);
-    window.addEventListener('keydown', handleKeyDown);
+    canvas.addEventListener('pointerdown', (e) => {
+      console.log('pointerdown', e);
+    });
+    canvas.addEventListener('pointerdown', handleDown);
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
 
     return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-      canvas.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
+      canvas.removeEventListener('pointerdown', handleDown);
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
     };
-  }, [canvasRef, dragState, partsRef]);
-};
+  }, [canvasRef, dragState, partsRef, drawParts]);
+}

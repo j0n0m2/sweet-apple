@@ -26,6 +26,7 @@ const FaceCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastLandmarksRef = useRef<faceapi.FaceLandmarks68 | null>(null);
   const partsRef = useRef<Part[]>(initialParts);
   const dragState = useRef<{
     dragPart: null | Part;
@@ -40,7 +41,14 @@ const FaceCanvas = () => {
 
   // face api model load 및 캠 활성화
   useFaceApi(videoRef);
-  useDragHandlers(canvasRef, dragState, partsRef);
+  useDragHandlers(canvasRef, dragState, partsRef, () => {
+    const ctx = canvasRef.current!.getContext('2d')!;
+    ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+
+    if (lastLandmarksRef.current) {
+      drawParts(ctx, lastLandmarksRef.current, videoRef.current!);
+    }
+  });
 
   const handleCapture = () => {
     const canvas = canvasRef.current;
@@ -258,8 +266,9 @@ const FaceCanvas = () => {
 
         resizedDetections.forEach((det) => {
           const { happy, angry, fearful, disgusted } = det.expressions;
-
           handleExpression(happy, angry, fearful, disgusted);
+
+          lastLandmarksRef.current = det.landmarks;
           drawParts(ctx, det.landmarks, video);
         });
       }, 100);
