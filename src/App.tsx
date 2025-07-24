@@ -1,11 +1,15 @@
-import "./App.css";
-import Home from "./pages/Home";
+import Index from '@/index.tsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <>
-      <Home />
-    </>
+    <QueryClientProvider client={queryClient}>
+      <Index />
+      <ReactQueryDevtools initialIsOpen={true} />
+    </QueryClientProvider>
   );
 }
 
