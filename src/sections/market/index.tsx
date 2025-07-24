@@ -6,7 +6,7 @@ import { formattedDate } from '@/sections/market/utils/formatTime';
 const MarketList = () => {
   const { data: apples } = useMarketItems();
   return (
-    <ul className="flex h-[75dvh] flex-wrap gap-4 overflow-y-scroll py-4 sm:max-h-[800px] sm:gap-4 sm:py-8">
+    <ul className="flex h-[78dvh] flex-wrap gap-4 overflow-y-scroll py-4 sm:max-h-[800px] sm:gap-4 sm:py-8">
       {apples.map((item, index) => (
         <li
           key={index}
@@ -32,14 +32,13 @@ const MarketList = () => {
 
 const Market = () => {
   return (
-    <div>
-      <h1>사과 나눔합니다</h1>
+    <>
       <ErrorBoundary fallback={<div>Something went wrong</div>}>
         <Suspense fallback={<div>Loading...</div>}>
           <MarketList />
         </Suspense>
       </ErrorBoundary>
-    </div>
+    </>
   );
 };
 export default Market;
