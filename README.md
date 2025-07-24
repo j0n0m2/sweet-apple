@@ -48,6 +48,8 @@
 
 <img src="https://github.com/user-attachments/assets/0146262f-abde-4b3c-bf8f-76610df79d6f" alt="Image" width="300" />
 
+> scan-result.jpeg
+
 &nbsp;
 
 ### 4. 마켓
