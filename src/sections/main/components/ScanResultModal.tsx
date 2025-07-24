@@ -7,7 +7,7 @@ import { useMenu } from '@/store/menuStore';
 import { useModal } from '@/sections/main/store/modalStore';
 import { useUploadApple } from '@/sections/main/hooks/useUploadApple';
 import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
-import ScrollHintAnimation from '@/animations/scrollHintAnimation';
+import ScrollHintAnimation from '@/animations/ScrollHintAnimation';
 
 interface Props {
   imageKey: string | null;
