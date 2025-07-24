@@ -46,7 +46,7 @@
 
 > 사용자의 사과 이미지, 당도, 효능에 대한 내용이 담긴 모달이 나옵니다.
 
-![Image](https://github.com/user-attachments/assets/0146262f-abde-4b3c-bf8f-76610df79d6f)
+<img src="https://github.com/user-attachments/assets/0146262f-abde-4b3c-bf8f-76610df79d6f" alt="Image" width="300" />
 
 &nbsp;
 
