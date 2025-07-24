@@ -90,7 +90,11 @@ const FaceCanvas = () => {
   };
 
   const preloadImages = () => {
+    if (!imageContainerRef.current) return;
     // 이미지 깜빡거림을 최소화하기 위해 이미지 미리 로드 후 클래스 부여
+    // 기존 이미지 제거
+    imageContainerRef.current.innerHTML = '';
+    
     // active 클래스가 부여된 img 요소만 보이게 됨
     for (let i = IMAGE_RANGE.first; i <= IMAGE_RANGE.last; i++) {
       const img = document.createElement('img');
