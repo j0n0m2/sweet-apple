@@ -7,7 +7,7 @@ const MobileAsideBar = () => {
   const { isMenuOpen, closeMenu } = useMenu();
   return (
     isMenuOpen && (
-      <div className="fixed z-60 h-full w-full flex-1 flex-col border-[#003661] bg-[linear-gradient(0deg,_#ffffff90_0%,_#ffffff_70%)] text-[#003661] backdrop-blur sm:hidden">
+      <div className="fixed z-60 flex h-full w-full flex-1 flex-col border-[#003661] bg-[linear-gradient(0deg,_#ffffff90_0%,_#ffffff_70%)] text-[#003661] backdrop-blur sm:hidden">
         <div className="flex justify-end text-[30px]">
           <button className="mr-4" onClick={() => closeMenu()}>
             X
@@ -30,7 +30,7 @@ const MobileAsideBar = () => {
             </li>
           ))}
         </ul>
-        <div className="p-5 text-[19px] whitespace-pre-line">
+        <div className="flex-1 overflow-hidden p-5 text-[19px]">
           {MENU_DATA[menuIndex].content}
         </div>
       </div>
