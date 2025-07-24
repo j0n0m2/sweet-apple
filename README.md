@@ -21,7 +21,7 @@
 
 - 인식 값에 따라 보여지는 사과 이미지가 변하도록 설정
 
-![Image](https://github.com/user-attachments/assets/c1d793a3-0a72-45e2-ad4c-fb702f284a96)
+<img src="https://github.com/user-attachments/assets/c1d793a3-0a72-45e2-ad4c-fb702f284a96" alt="Image" width="600" />
 
 > 웃으면 사과의 상태가 좋아지고, 찡그리면 사과의 상태가 안좋아집니다.
 
@@ -31,7 +31,7 @@
 
 - 마우스 또는 터치 이벤트를 통해 눈과 입 위치 변경
 
-![Image](https://github.com/user-attachments/assets/ca5585f0-56c3-42ee-bcbd-2f8513a603b5)
+<img src="https://github.com/user-attachments/assets/ca5585f0-56c3-42ee-bcbd-2f8513a603b5" alt="Image" width="600" />
 
 > 크기를 늘리고 줄이는 기능도 추가할 예정입니다.
 
@@ -42,7 +42,7 @@
 - 'Scan Apple' 버튼을 누르면 사과 당도와 효능과 관련된 내용이 담긴 모달 확인 가능
 - 사과 이미지가 포함된 검사 결과 모달 내용을 이미지로 다운로드
 
-![Image](https://github.com/user-attachments/assets/6b8bcc7d-61ac-4f17-aade-e4f5edf82784)
+<img src="https://github.com/user-attachments/assets/6b8bcc7d-61ac-4f17-aade-e4f5edf82784" alt="Image" width="600" />
 
 > 사용자의 사과 이미지, 당도, 효능에 대한 내용이 담긴 모달이 나옵니다.
 
@@ -52,7 +52,7 @@
 
 - 자신의 사과를 마켓에 공유하고, 다른 사용자 사과 조회 가능
 
-![Image](https://github.com/user-attachments/assets/bd9ff884-4b22-4aba-be68-a7e76e3518da)
+<img src="https://github.com/user-attachments/assets/bd9ff884-4b22-4aba-be68-a7e76e3518da" alt="Image" width="600" />
 
 &nbsp;
 
@@ -102,7 +102,7 @@
 ## 🎮 프로젝트 실행 방법
 
 1. `lib/firebase.ts` 파일 설정: firebase API Key를 입력해주세요.
-   <br/>- API Key를 입력하지 않으면 [마켓 관련 기능](#마켓)을 사용할 수 없습니다.
+   <br/>- API Key를 입력하지 않으면 [마켓 관련 기능](#4-마켓)을 사용할 수 없습니다.
 2. 프로젝트 클론:
 
    `git clone https://github.com/j0n0m2/sweet-apple.git`
