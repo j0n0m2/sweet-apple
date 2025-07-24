@@ -42,7 +42,7 @@
 - 'Scan Apple' 버튼을 누르면 사과 당도와 효능과 관련된 내용이 담긴 모달 확인 가능
 - 사과 이미지가 포함된 검사 결과 모달 내용을 이미지로 다운로드
 
-<img src="https://github.com/user-attachments/assets/6b8bcc7d-61ac-4f17-aade-e4f5edf82784" alt="Image" width="600" />
+<img src="https://github.com/user-attachments/assets/c7cbfdc4-fcba-42aa-98f1-9f902bbc2561" alt="Image" width="600" />
 
 > 사용자의 사과 이미지, 당도, 효능에 대한 내용이 담긴 모달이 나옵니다.
 
@@ -52,7 +52,7 @@
 
 - 자신의 사과를 마켓에 공유하고, 다른 사용자 사과 조회 가능
 
-<img src="https://github.com/user-attachments/assets/bd9ff884-4b22-4aba-be68-a7e76e3518da" alt="Image" width="600" />
+<img src="https://github.com/user-attachments/assets/192dd60e-687a-4fba-bbf0-03dc1bf28601" alt="Image" width="600" />
 
 &nbsp;
 
