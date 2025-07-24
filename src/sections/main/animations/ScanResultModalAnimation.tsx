@@ -39,7 +39,7 @@ const ScanResultModalAnimation = ({ imageKey, children }: Props) => {
           y: '-50%',
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 50 }}
-        className="fixed left-1/2 z-50 flex max-h-[95vh] w-[90vw] -translate-x-1/2 cursor-pointer flex-col justify-between overflow-y-scroll border-2 border-black bg-white sm:w-100"
+        className="fixed left-1/2 z-50 flex max-h-[95dvh] w-[90vw] -translate-x-1/2 cursor-pointer flex-col justify-between overflow-y-scroll border-2 border-black bg-white sm:w-100"
         style={{ willChange: 'top, transform' }}
       >
         {children}

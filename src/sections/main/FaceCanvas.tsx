@@ -11,8 +11,14 @@ import ScanResultModal from '@/sections/main/components/ScanResultModal';
 import Header from '@/sections/main/ui/Header';
 import { useCapturedImage } from '@/sections/main/store/capturedImageStore';
 import clsx from 'clsx';
+import { useMediaQuery } from 'react-responsive';
+import { useMenu } from '@/store/menuStore';
+import AlignJustify from '@/icons/align-justify';
 
 const FaceCanvas = () => {
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  const { openMenu } = useMenu();
+
   const [imageKey, setImageKey] = useState<string | null>(null);
   const [sugarContent, setSugarContent] = useState<number | null>(null);
   const { capturedImage, setCapturedImage } = useCapturedImage();
@@ -287,8 +293,12 @@ const FaceCanvas = () => {
       <div className="flex h-full flex-col justify-between p-4 sm:p-10">
         <div className="flex w-full justify-between">
           <Header />
-          <button type="button" className="sm:hidden">
-            메뉴
+          <button
+            onClick={() => openMenu()}
+            type="button"
+            className="text-[#003661] sm:hidden"
+          >
+            <AlignJustify />
           </button>
         </div>
         <button
@@ -296,7 +306,7 @@ const FaceCanvas = () => {
           onClick={handleCapture}
           className={clsx(
             'rounded-2xl border-black bg-white py-4 text-[19px] font-bold transition-transform duration-500 ease-in-out hover:bg-blue-300 hover:text-white sm:h-32 sm:w-32 sm:text-2xl',
-            capturedImage ? '-translate-y-20' : 'translate-y-0'
+            isMobile && capturedImage ? '-translate-y-20' : 'translate-y-0'
           )}
         >
           <p className="hidden justify-center sm:flex">

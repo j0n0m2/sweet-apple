@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface MenuState {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
+  isMenuOpen: boolean;
+  openMenu: () => void;
+  closeMenu: () => void;
 
   menuIndex: number;
   setMenuIndex: (index: number) => void;
@@ -13,9 +13,9 @@ interface MenuState {
 const useMenuStore = create<MenuState>()(
   persist(
     (set) => ({
-      isOpen: false,
-      open: () => set({ isOpen: true }),
-      close: () => set({ isOpen: false }),
+      isMenuOpen: true,
+      openMenu: () => set({ isMenuOpen: true }),
+      closeMenu: () => set({ isMenuOpen: false }),
 
       menuIndex: 0,
       setMenuIndex: (index) => set({ menuIndex: index }),
@@ -27,12 +27,12 @@ const useMenuStore = create<MenuState>()(
 );
 
 export const useMenu = () => {
-  const isOpen = useMenuStore((s) => s.isOpen);
-  const open = useMenuStore((s) => s.open);
-  const close = useMenuStore((s) => s.close);
+  const isMenuOpen = useMenuStore((s) => s.isMenuOpen);
+  const openMenu = useMenuStore((s) => s.openMenu);
+  const closeMenu = useMenuStore((s) => s.closeMenu);
 
   const menuIndex = useMenuStore((s) => s.menuIndex);
   const setMenuIndex = useMenuStore((s) => s.setMenuIndex);
 
-  return { isOpen, open, close, menuIndex, setMenuIndex };
+  return { isMenuOpen, openMenu, closeMenu, menuIndex, setMenuIndex };
 };
